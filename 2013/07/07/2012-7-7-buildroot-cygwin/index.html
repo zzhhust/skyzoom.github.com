@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>buildroot+mips under cygwin | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="1.download buildroot,gcc,bintuils.uclibc linux-header
+2.upack buildroot
+3.mkdir /buildroot/dl
+4.put uclibc ,gcc,bintuils tarball in dl
+5.cd buildroot ">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="buildroot+mips under cygwin"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-07T13:00:00.000Z"><a href="/2013/07/07/2012-7-7-buildroot-cygwin/">7月 7 2013</a></time>
+      
+      
+  
+    <h1 class="title">buildroot+mips under cygwin</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>1.download buildroot,gcc,bintuils.uclibc linux-header</p>
+<p>2.upack buildroot</p>
+<p>3.mkdir /buildroot/dl</p>
+<p>4.put uclibc ,gcc,bintuils tarball in dl</p>
+<p>5.cd buildroot make menuconfig</p>
+<p>failed</p>
+<p>fixed as follow</p>
+<p>— buildroot/package/config/Makefile 2007-08-04 15:15:44.000000000 +0800<br>+++ buildroot-old/package/config/Makefile 2007-09-09 15:58:06.728702400 +0800<br>@@ -20,7 +20,7 @@<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $&lt; -o $@</p>
+<p>$(host-cmulti): %: $(host-cobjs) $(host-cshlib)<br>- $(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST<em>LOADLIBES) $() -o $@<br>+ $(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $() -lintl -lncurses -o $@</p>
+<p>$(host-cobjs): %.o: %.c<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) -c $&lt; -o $@</p>
+<p>— buildroot/toolchain/uClibc/uclibc.mk 2007-08-04 15:15:02.000000000 +0800<br>+++ buildroot-new/toolchain/uClibc/uclibc.mk 2007-10-22 09:49:39.721336200 +0800<br>@@ -347,14 +347,9 @@<br>fi;<br>fi;<br>endif<br>- # Build the host utils.  Need to add an install target…<br>- $(MAKE1) -C $(UCLIBC_DIR)/utils<br>-  PREFIX=$(STAGING_DIR)<br>-  HOSTCC=”$(HOSTCC)”<br>-  hostutils<br>- install -c $(UCLIBC_DIR)/utils/ldd.host $(STAGING_DIR)/usr/bin/ldd<br>+# install -c $(UCLIBC_DIR)/utils/ldd.host $(STAGING_DIR)/usr/bin/ldd<br>ln -sf ldd $(STAGING_DIR)/usr/bin/$(REAL_GNU_TARGET_NAME)-ldd<br>- install -c $(UCLIBC_DIR)/utils/ldconfig.host $(STAGING_DIR)/usr/bin/ldconfig<br>+# install -c $(UCLIBC_DIR)/utils/ldconfig.host $(STAGING_DIR)/usr/bin/ldconfig<br>ln -sf ldconfig $(STAGING_DIR)/usr/bin/$(REAL_GNU_TARGET_NAME)-ldconfig<br>ln -sf ldconfig $(STAGING_DIR)/usr/bin/$(GNU_TARGET_NAME)-ldconfig<br>touch -c $@</p>
+<ol>
+<li>buildroot</li>
+</ol>
+<p>make menuconfig</p>
+<p>note: not select locale,wchar support</p>
+<ol>
+<li><p>make</p>
+</li>
+<li><p>failed at binutils-2.15</p>
+</li>
+</ol>
+<p>patched</p>
+<p>— binutils-2.15/ld/ldmain.c 2008-04-02 16:26:19.893733000 +0800<br>+++ binutils-2.15-patch/ld/ldmain.c 2007-10-11 16:47:59.282360000 +0800<br>@@ -398,13 +398,14 @@<br>lex_string = NULL;<br>}<br>/<em> NG horrible hack, but it works and I haven’t the time to do this properly </em>/<br>+/*</p>
+<h1>ifdef bfd_set_link_info</h1>
+<p>bfd_set_link_info(&amp;link_info);</p>
+<h1>endif</h1>
+<h1>ifdef bfd_set_force_make_executable</h1>
+<p>bfd_set_force_make_executable(force_make_executable);</p>
+<h1>endif</h1>
+<p>-<br>+*/</p>
+<p>if (trace_file_tries)<br>{</p>
+<ol>
+<li>continue make</li>
+</ol>
+<p>failed at gcc</p>
+<p>add patch</p>
+<p>304-index_macro.patch</p>
+<p>302-c99-snprintf.patch</p>
+<p>9.make,failed at uClibc</p>
+<p>10.collect some patch total as follow</p>
+<p>diff -Nru uClibc-0.9.29/extra/config/Makefile uClibc-0.9.29-patch/extra/config/Makefile<br>— uClibc-0.9.29/extra/config/Makefile 2007-09-07 14:44:50.000000000 +0800<br>+++ uClibc-0.9.29-patch/extra/config/Makefile 2007-09-11 10:26:41.000000000 +0800<br>@@ -21,7 +21,7 @@<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $&lt; -o $@</p>
+<p>$(host-cmulti): %: $(host-cobjs) $(host-cshlib)<br>- $(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST<em>LOADLIBES) $() -lintl -o $@<br>+ $(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $() -lintl -lncurses -o $@</p>
+<p>$(host-cobjs): %.o: %.c<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) -c $&lt; -o $@<br>diff -Nru uClibc-0.9.29/libc/string/mips/memcpy.S uClibc-0.9.29-patch/libc/string/mips/memcpy.S<br>— uClibc-0.9.29/libc/string/mips/memcpy.S 2006-11-05 03:48:12.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/string/mips/memcpy.S 2007-09-10 13:25:29.000000000 +0800<br>@@ -140,17 +140,17 @@<br>END (memcpy)</p>
+<h1>else /<em> !__mips64 </em>/</h1>
+<p>-<br>+#include <sys/asm.h></p>
+<h1>if <strong>BYTE_ORDER == </strong>BIG_ENDIAN</h1>
+<p>-#  define LWHI lwl  /<em> high part is left in big-endian </em>/<br>-#  define SWHI swl  /<em> high part is left in big-endian </em>/<br>-#  define LWLO lwr  /<em> low part is right in big-endian </em>/<br>-#  define SWLO swr  /<em> low part is right in big-endian </em>/<br>+#define LWHI lwl  /<em> high part is left in big-endian </em>/<br>+#define SWHI swl  /<em> high part is left in big-endian </em>/<br>+#define LWLO lwr  /<em> low part is right in big-endian </em>/<br>+#define SWLO swr  /<em> low part is right in big-endian </em>/</p>
+<h1>else</h1>
+<p>-#  define LWHI lwr  /<em> high part is right in little-endian </em>/<br>-#  define SWHI swr  /<em> high part is right in little-endian </em>/<br>-#  define LWLO lwl  /<em> low part is left in little-endian </em>/<br>-#  define SWLO swl  /<em> low part is left in little-endian </em>/<br>+#define LWHI lwr  /<em> high part is right in little-endian </em>/<br>+#define SWHI swr  /<em> high part is right in little-endian </em>/<br>+#define LWLO lwl  /<em> low part is left in little-endian </em>/<br>+#define SWLO swl  /<em> low part is left in little-endian </em>/</p>
+<h1>endif</h1>
+<p>ENTRY (memcpy)<br>diff -Nru uClibc-0.9.29/libc/string/mips/sysdep.h uClibc-0.9.29-patch/libc/string/mips/sysdep.h<br>— uClibc-0.9.29/libc/string/mips/sysdep.h 2006-01-14 08:58:03.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/string/mips/sysdep.h 2007-09-10 13:46:19.000000000 +0800<br>@@ -29,7 +29,7 @@<br>.globl name;<br>.align 2;<br>.ent name,0;<br>-  name##:<br>+  name:</p>
+<h1>undef END</h1>
+<h1>define END(function)</h1>
+<p>diff -Nru uClibc-0.9.29/libc/sysdeps/linux/common/mmap64.c uClibc-0.9.29-patch/libc/sysdeps/linux/common/mmap64.c<br>— uClibc-0.9.29/libc/sysdeps/linux/common/mmap64.c 2008-03-26 09:49:49.218842800 +0800<br>+++ uClibc-0.9.29-patch/libc/sysdeps/linux/common/mmap64.c 2007-09-10 12:02:02.000000000 +0800<br>@@ -63,7 +63,7 @@<br>fd,((__u_quad_t)offset &gt;&gt; MMAP2_PAGE_SHIFT));</p>
+<h1>else</h1>
+<p>return <strong>syscall_mmap2(addr, len, prot, flags,<br>-                          fd,((</strong>ulong_t)offset &gt;&gt; MMAP2_PAGE_SHIFT));<br>+                          fd,((unsigned long)offset &gt;&gt; MMAP2_PAGE_SHIFT));</p>
+<h1>endif</h1>
+<p>}</p>
+<p>diff -Nru uClibc-0.9.29/libc/sysdeps/linux/mips/crti.S uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crti.S<br>— uClibc-0.9.29/libc/sysdeps/linux/mips/crti.S 2006-11-05 03:53:15.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crti.S 2007-09-10 13:56:50.000000000 +0800<br>@@ -4,10 +4,8 @@<br>.section .mdebug.abi32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>@@ -23,13 +21,11 @@<br>.cprestore 16<br>sw $31,28($sp)<br>sw $28,24($sp)<br>-#APP</p>
+<p>.align 2<br>.end _init</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>@@ -45,7 +41,6 @@<br>.cprestore 16<br>sw $31,28($sp)<br>sw $28,24($sp)<br>-#APP<br>.align 2<br>.end _fini</p>
+<p>@@ -55,10 +50,8 @@<br>.section .mdebug.abiN32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _init<br>@@ -74,13 +67,11 @@<br>addu $28,$28,$25<br>addiu $28,$28,%lo(%neg(%gp_rel(_init)))<br>sd $31,8($sp)<br>-#APP</p>
+<p>.align 3<br>.end _init</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _fini<br>@@ -96,7 +87,6 @@<br>addu $28,$28,$25<br>addiu $28,$28,%lo(%neg(%gp_rel(_fini)))<br>sd $31,8($sp)<br>-#APP<br>.align 3<br>.end _fini</p>
+<p>@@ -106,11 +96,9 @@<br>.section .mdebug.abi64<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>@@ -127,13 +115,11 @@<br>addiu $1,$1,%lo(%neg(%gp_rel(_init)))<br>daddu $gp,$1,$25<br>.set at<br>-#APP</p>
+<p>.align 2<br>.end _init</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>@@ -150,7 +136,6 @@<br>addiu $1,$1,%lo(%neg(%gp_rel(_fini)))<br>daddu $gp,$1,$25<br>.set at<br>-#APP<br>.align 2<br>.end _fini</p>
+<p>diff -Nru uClibc-0.9.29/libc/sysdeps/linux/mips/crtn.S uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crtn.S<br>— uClibc-0.9.29/libc/sysdeps/linux/mips/crtn.S 2006-11-05 03:53:15.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crtn.S 2007-09-10 14:04:02.000000000 +0800<br>@@ -4,17 +4,14 @@<br>.section .mdebug.abi32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>.type _init, @function<br>-#NO_APP<br>lw $31,28($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -23,17 +20,14 @@<br>.set reorder</p>
+<p>.end _init<br>-#APP</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>.type _fini, @function<br>-#NO_APP<br>lw $31,28($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -42,7 +36,6 @@<br>.set reorder</p>
+<p>.end _fini<br>-#APP</p>
+<p>.ident ”GCC: (GNU) 3.3.2″</p>
+<h1>elif _MIPS_SIM == _MIPS_SIM_NABI32</h1>
+<p>@@ -50,16 +43,13 @@<br>.section .mdebug.abiN32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _init<br>.ent _init<br>.type _init, @function<br>-#NO_APP<br>ld $31,8($sp)<br>ld $28,0($sp)<br>.set noreorder<br>@@ -70,16 +60,13 @@<br>.set reorder</p>
+<p>.end _init<br>-#APP</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _fini<br>.ent _fini<br>.type _fini, @function<br>-#NO_APP<br>ld $31,8($sp)<br>ld $28,0($sp)<br>.set noreorder<br>@@ -90,7 +77,6 @@<br>.set reorder</p>
+<p>.end _fini<br>-#APP</p>
+<p>.ident ”GCC: (GNU) 3.4.3″</p>
+<h1>else /<em> N64 </em>/</h1>
+<p>@@ -98,19 +84,16 @@<br>.section .mdebug.abi64<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>.type _init, @function<br>-#NO_APP<br>ld $31,24($sp)<br>ld $28,16($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -119,18 +102,15 @@<br>.set reorder</p>
+<p>.end _init<br>-#APP</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>.type _fini, @function<br>-#NO_APP<br>ld $31,24($sp)<br>ld $28,16($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -139,7 +119,6 @@<br>.set reorder</p>
+<p>.end _fini<br>-#APP</p>
+<p>.ident ”GCC: (GNU) 3.3.2″</p>
+<h1>endif /<em> N64 </em>/</h1>
+<p>diff -Nru uClibc-0.9.29/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h uClibc-0.9.29-patch/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h<br>— uClibc-0.9.29/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h 2006-01-31 13:05:15.000000000 +0800<br>+++ uClibc-0.9.29-patch/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h 2007-09-10 14:41:48.000000000 +0800<br>@@ -17,7 +17,7 @@<br>Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA<br>02111-1307 USA.  */</p>
+<p>-#include <sysdep.h><br>+</p>
+<h1>ifndef <strong>ASSEMBLER</strong></h1>
+<h1>include <linuxthreads/internals.h></h1>
+<h1>endif</h1>
+<p>diff -Nru uClibc-0.9.29/utils/readelf.c uClibc-0.9.29-patch/utils/readelf.c<br>— uClibc-0.9.29/utils/readelf.c 2006-10-07 14:01:37.000000000 +0800<br>+++ uClibc-0.9.29-patch/utils/readelf.c 2007-09-10 16:09:34.000000000 +0800<br>@@ -24,7 +24,7 @@</p>
+<h1>include <sys/types.h></h1>
+<h1>include “bswap.h”</h1>
+<p>-#include “link.h”<br>+#include “../include/link.h”<br>/<em> makefile will include elf.h for us </em>/</p>
+<p>int byteswap;</p>
+<ol>
+<li>test build</li>
+</ol>
+<p>hello in c</p>
+<p>hello in c++</p>
+<p>hello with pthread</p>
+<p>build with shared libc, and -static</p>
+<p>you will find some error at “<em>*</em>.os”</p>
+<p>cd uClibc-xxx; rm the “<em>*.os” then make; and cp -a lib/</em> to toolchain lib</p>
+<p>11.test again</p>
+<p>failed at link hello-thread static</p>
+<p>in uClibc-*/libpthread/linuxthreadsMakefile.in, i add a libc-cancellation.o</p>
+<p>i am not sure it correct, but it workes</p>
+<p>libc-static-y += $(libpthread_OUT)/libc_pthread_init.o $(libpthread_OUT)/libc-cancellation.o</p>
+<h2>12.OK</h2>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/mips/">mips</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/buildroot/">buildroot</a>, <a href="/tags/cygwin/">cygwin</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

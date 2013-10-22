@@ -1,0 +1,1246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[四棵竹]]></title>
+  <subtitle><![CDATA[keep studying and recording]]></subtitle>
+  <link href="http://yoursite.com/atom.xml" rel="self"/>
+  <link href="http://yoursite.com"/>
+  <updated>2013-10-22T02:08:07.220Z</updated>
+  <id>http://yoursite.com/</id>
+  <author>
+    <name><![CDATA[skyzoom]]></name>
+    <email><![CDATA[skyzoom.cn@gmail.com]]></email>
+  </author>
+  <generator uri="http://zespia.tw/hexo">Hexo</generator>
+  <entry>
+    <title type="html"><![CDATA[early_param & causes a section type conflict _setup]]></title>
+    <link href="http://yoursite.com/2013/10/21/2013-10-21-early-param/"/>
+    <id>http://yoursite.com/2013/10/21/2013-10-21-early-param/</id>
+    <published>2013-10-21T13:00:00.000Z</published>
+    <updated>2013-10-21T06:12:49.000Z</updated>
+    <content type="html"><![CDATA[<p><strong>early_param &amp; causes a section type conflict _setupt</strong> </p>
+<p>1) i have add a simple code to my board_setup.c, and compile get error as follow<br>    &quot;<em>*</em>causes a section type conflict _setup&quot;  </p>
+<p>2) check the code, it is my old code work well<br>    early_param(&quot;myboard_arg1&quot;,early_myboard_arg1):  </p>
+<p>3) google and check my code, found my new code<br>static const char <em>myboard_dt_match[] __initconst = {<br> need change to<br>static const char </em>myboard_dt_match[] __initdata = {</p>
+<p>4) it fixed</p>
+<p>5) why? i am have time to find out, if u can ,tell me.  </p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/linux/" term="linux"/>
+    <category scheme="http://yoursite.com/categories/linux/" term="linux"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[tiny android]]></title>
+    <link href="http://yoursite.com/2013/09/17/2013-9-17-tiny-android/"/>
+    <id>http://yoursite.com/2013/09/17/2013-9-17-tiny-android/</id>
+    <published>2013-09-17T13:00:00.000Z</published>
+    <updated>2013-09-17T05:24:30.000Z</updated>
+    <content type="html"><![CDATA[<p><strong>tiny-android for linux development</strong> </p>
+<pre><code><span class="comment">1</span>.<span class="comment">get</span> <span class="comment">any</span> <span class="comment">source</span> <span class="comment">of</span> <span class="comment">android</span> <span class="comment">(example</span> <span class="comment">android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2)</span>
+
+<span class="comment">2</span>. <span class="comment">cd</span> <span class="comment">android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2</span>
+    <span class="comment">source</span> <span class="comment">build/envsetup</span>.<span class="comment">sh</span>
+    <span class="comment">BUILD_TINY_ANDROID=true</span> <span class="comment">make</span> <span class="literal">-</span><span class="comment">j8</span>
+
+<span class="comment">3</span>. <span class="comment">cd</span> <span class="comment">linux</span>-<span class="comment">bsp/</span>
+   <span class="comment">a)</span> 
+   <span class="comment">mkdir</span> <span class="comment">rootfs</span>
+   <span class="comment">cp</span> <span class="literal">-</span><span class="comment">a</span> <span class="string">.</span><span class="string">.</span><span class="comment">/android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2/out/target/product/generic/root/*</span> <span class="comment">rootfs/</span>
+   <span class="comment">cp</span> <span class="literal">-</span><span class="comment">a</span> <span class="string">.</span><span class="string">.</span><span class="comment">/android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2/out/target/product/generic/system</span> <span class="comment">rootfs/</span>
+   <span class="comment">cp</span> <span class="literal">-</span><span class="comment">a</span> <span class="string">.</span><span class="string">.</span><span class="comment">/android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2/out/target/product/generic/data</span> <span class="comment">rootfs/</span>   
+   <span class="comment">b)</span>
+    <span class="comment">manual</span> <span class="comment">copy</span> 
+        <span class="comment">adbd</span> <span class="comment">to</span> <span class="comment">rootfs/sbin/</span>
+        <span class="comment">debuggerrd</span> <span class="comment">to</span> <span class="comment">rootfs/system/bin/</span>
+        <span class="comment">linker</span> <span class="comment">to</span> <span class="comment">rootfs/system/bin/</span>
+        <span class="comment">static</span> <span class="comment">linked</span> <span class="comment">busybox</span> <span class="comment">to</span> <span class="comment">/system/bin/</span>
+   <span class="comment">c)</span>
+    <span class="comment">remove</span> <span class="comment">unneed</span> <span class="comment">*</span>.<span class="comment">rc(</span> <span class="comment">example:</span> <span class="comment">goldfish</span>.<span class="comment">rc</span> <span class="comment">trace</span>.<span class="comment">rc</span> <span class="comment">usb</span>.<span class="comment">rc)</span>
+   <span class="comment">d)</span> <span class="comment">chmod</span>  
+    <span class="comment">cd</span> <span class="comment">rootfs</span>
+    <span class="comment">find</span> <span class="string">.</span> <span class="literal">-</span><span class="comment">type</span> <span class="comment">f|xargs</span> <span class="comment">chmod</span> <span class="comment">g</span>-<span class="comment">w</span>
+    <span class="comment">find</span> <span class="string">.</span> <span class="literal">-</span><span class="comment">type</span> <span class="comment">f|xargs</span> <span class="comment">chmod</span> <span class="comment">o</span>-<span class="comment">w</span>            
+
+<span class="comment">4</span>.<span class="comment">moidfy</span> <span class="comment">init</span>.<span class="comment">rc</span>
+<span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">init</span>.<span class="comment">rc</span>  <span class="comment">2013</span>-<span class="comment">09</span>-<span class="comment">16</span> <span class="comment">16:54:22</span>.<span class="comment">560750293</span> <span class="literal">+</span><span class="comment">0800</span>
+<span class="literal">+</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">init</span>.<span class="comment">rc</span>     <span class="comment">2013</span>-<span class="comment">09</span>-<span class="comment">17</span> <span class="comment">08:34:07</span>.<span class="comment">775479178</span> <span class="literal">+</span><span class="comment">0800</span>
+<span class="comment">@@</span> <span class="literal">-</span><span class="comment">127</span>,<span class="comment">14</span> <span class="literal">+</span><span class="comment">127</span>,<span class="comment">9</span> <span class="comment">@@</span>
+ <span class="comment">on</span> <span class="comment">fs</span>
+ <span class="comment">#</span> <span class="comment">mount</span> <span class="comment">mtd</span> <span class="comment">partitions</span>
+     <span class="comment">#</span> <span class="comment">Mount</span> <span class="comment">/system</span> <span class="comment">rw</span> <span class="comment">first</span> <span class="comment">to</span> <span class="comment">give</span> <span class="comment">the</span> <span class="comment">filesystem</span> <span class="comment">a</span> <span class="comment">chance</span> <span class="comment">to</span> <span class="comment">save</span> <span class="comment">a</span> <span class="comment">checkpoint</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@system</span> <span class="comment">/system</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@system</span> <span class="comment">/system</span> <span class="comment">ro</span> <span class="comment">remount</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@userdata</span> <span class="comment">/data</span> <span class="comment">nosuid</span> <span class="comment">nodev</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@cache</span> <span class="comment">/cache</span> <span class="comment">nosuid</span> <span class="comment">nodev</span>
+
+ <span class="comment">on</span> <span class="comment">post</span>-<span class="comment">fs</span>
+     <span class="comment">#</span> <span class="comment">once</span> <span class="comment">everything</span> <span class="comment">is</span> <span class="comment">setup</span>, <span class="comment">no</span> <span class="comment">need</span> <span class="comment">to</span> <span class="comment">modify</span> <span class="comment">/</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">rootfs</span> <span class="comment">rootfs</span> <span class="comment">/</span> <span class="comment">ro</span> <span class="comment">remount</span>
+     <span class="comment">#</span> <span class="comment">mount</span> <span class="comment">shared</span> <span class="comment">so</span> <span class="comment">changes</span> <span class="comment">propagate</span> <span class="comment">into</span> <span class="comment">child</span> <span class="comment">namespaces</span>
+     <span class="comment">mount</span> <span class="comment">rootfs</span> <span class="comment">rootfs</span> <span class="comment">/</span> <span class="comment">shared</span> <span class="comment">rec</span>
+     <span class="comment">mount</span> <span class="comment">tmpfs</span> <span class="comment">tmpfs</span> <span class="comment">/mnt/secure</span> <span class="comment">private</span> <span class="comment">rec</span>
+<span class="comment">@@</span> <span class="literal">-</span><span class="comment">384</span>,<span class="comment">12</span> <span class="literal">+</span><span class="comment">379</span>,<span class="comment">11</span> <span class="comment">@@</span>
+     <span class="comment">restart</span> <span class="comment">ueventd</span>
+     <span class="comment">restart</span> <span class="comment">installd</span>
+
+<span class="literal">-</span><span class="comment">service</span> <span class="comment">console</span> <span class="comment">/system/bin/sh</span>
+<span class="literal">+</span><span class="comment">service</span> <span class="comment">console</span> <span class="comment">/system/bin/busybox</span> <span class="comment">sh</span>
+     <span class="comment">class</span> <span class="comment">core</span>
+     <span class="comment">console</span>
+     <span class="comment">disabled</span>
+<span class="literal">-</span>    <span class="comment">user</span> <span class="comment">shell</span>
+<span class="literal">-</span>    <span class="comment">group</span> <span class="comment">log</span>
+<span class="literal">+</span>    <span class="comment">user</span> <span class="comment">root</span>
+
+ <span class="comment">on</span> <span class="comment">property:ro</span>.<span class="comment">debuggable=1</span>
+     <span class="comment">start</span> <span class="comment">console</span>
+
+<span class="comment">5</span>. <span class="comment">modify</span> <span class="comment">linux</span> <span class="comment">kernel</span> <span class="string">.</span><span class="comment">config</span> <span class="comment">enable</span> <span class="comment">USB</span> <span class="comment">&amp;</span> <span class="comment">USB</span> <span class="comment">HCD</span> <span class="comment">&amp;</span> <span class="comment">BINDER</span> <span class="comment">&amp;</span> <span class="comment">ASHMEM</span> <span class="comment">&amp;</span> <span class="comment">ANDROID_LOW_MEMORY_KILLER</span>
+
+<span class="comment">6</span>. <span class="comment">compile</span> <span class="comment">linux</span>-<span class="comment">bsp</span>  
+
+<span class="comment">7</span>.<span class="comment">replace</span> <span class="comment">rootfs</span>
+   <span class="comment">pack</span> <span class="comment">the</span> <span class="comment">rootfs</span> <span class="comment">dir</span> <span class="comment">to</span> <span class="comment">rootfs</span>.<span class="comment">ext4</span>, <span class="comment">and</span> <span class="comment">replace</span> <span class="comment">orig</span> <span class="comment">rootfs</span>
+<span class="comment">8</span>.<span class="comment">build</span> <span class="comment">firmware</span> <span class="comment">&amp;</span> <span class="comment">buring</span> <span class="comment">to</span> <span class="comment">flash</span>
+<span class="comment">9</span>.<span class="comment">boot</span> <span class="comment">system</span>
+    <span class="comment">a)</span> <span class="comment">enable</span> <span class="comment">mass_storage</span>,<span class="comment">adb</span>
+    <span class="comment">echo</span> <span class="comment">0</span> &gt;<span class="comment">/sys/class/android_usb/android0/enable</span> 
+    <span class="comment">echo</span> <span class="comment">"Your</span> <span class="comment">VID"</span> &gt;<span class="comment">/sys/class/android_usb/android0/idVendor</span> 
+    <span class="comment">echo</span> <span class="comment">"Your</span> <span class="comment">PID"</span> &gt;<span class="comment">/sys/class/android_usb/android0/idProduct</span> 
+    <span class="comment">echo</span> <span class="comment">mass_storage</span>,<span class="comment">adb</span> &gt;<span class="comment">/sys/class/android_usb/android0/functions</span> 
+    <span class="comment">echo</span> <span class="comment">1</span> &gt;<span class="comment">/sys/class/android_usb/android0/enable</span>
+
+    <span class="comment">b)</span> <span class="comment">start</span> <span class="comment">adbd</span>
+       <span class="comment">adbd</span> <span class="comment">&amp;</span>                  
+
+    <span class="comment">c)</span> <span class="comment">PC</span> <span class="comment">test</span>
+        <span class="comment">adb</span> <span class="comment">shell</span> <span class="comment">Success!</span>   </code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/categories/android/" term="android"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[adb remote control]]></title>
+    <link href="http://yoursite.com/2013/08/30/2013-9-3-adb-remote/"/>
+    <id>http://yoursite.com/2013/08/30/2013-9-3-adb-remote/</id>
+    <published>2013-08-30T13:00:00.000Z</published>
+    <updated>2013-09-04T01:46:01.000Z</updated>
+    <content type="html"><![CDATA[<p>adb remote control<br>    在实际开发中，经常有android device和开发PC没有物理连接在一起的情况，有时候需要remote control，有2类方法  </p>
+<hr>
+<pre><code>第一类： adb via network  
+
+通过adb via wifi/ethernet实现，具体网上很多现成的例子   
+使用很简单 adb connect xx.xx.xx.xx:port即可  
+注意device和remote PC在同一网段即可
+
+第二类： remote PC -&gt; host PC -&gt;Device  
+
+方法<span class="number">1</span>：修改adb,直接接受来自网络的tcp:port请求
+http://rxwen.blogspot.com/<span class="number">2009</span>/<span class="number">11</span>/adb-<span class="keyword">for</span>-remote-connections.html
+未实验
+
+方法<span class="number">2</span>：提供额外软件，在host PC运行server接受来自其他IP的tcp port请求，在remote PC运行client请求给PC host
+https://code.google.com/p/adbportforward/downloads/<span class="type">list</span>
+实验可用
+注意点：
+    <span class="number">1</span>）如果host PC是cygwin，注意路径用cygpath -w 转换下
+    <span class="number">2</span>）如果remote PC是服务器，多人共用，在adb连接时注意port,连接上后注意adb -s选择device
+
+方法<span class="number">3</span>：据称android <span class="number">4.3</span>自带支持，未测
+
+    Beginning Android <span class="number">4.3</span> you can:
+    Make adb server listen <span class="function_start"><span class="keyword">on</span> <span class="title">all</span></span> interfaces. You have two options:
+    Make gListen=<span class="number">1</span> <span class="keyword">and</span> recompile adb (I have compiled <span class="keyword">it</span> <span class="function_start"><span class="keyword">on</span> <span class="title">Linux</span></span>-x64 machine <span class="keyword">for</span> you <span class="keyword">and</span> <span class="keyword">put</span> <span class="keyword">it</span> here)
+    Start adb server <span class="keyword">with</span> -a parameter: adb -a -P <span class="number">5037</span> fork-server server&amp;
+    Use adb <span class="function_start"><span class="keyword">on</span> <span class="title">your</span></span> remote machine <span class="keyword">with</span> extra parameter, e.g. adb -H &lt;remote_host&gt; shell  </code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/tools/" term="tools"/>
+    <category scheme="http://yoursite.com/categories/tools/" term="tools"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[关于jekyll blog的注意点]]></title>
+    <link href="http://yoursite.com/2013/08/30/2013-8-30-jekyll/"/>
+    <id>http://yoursite.com/2013/08/30/2013-8-30-jekyll/</id>
+    <published>2013-08-30T13:00:00.000Z</published>
+    <updated>2013-08-31T06:55:02.000Z</updated>
+    <content type="html"><![CDATA[<p>关于jekyll使用有两个注意地方  </p>
+<pre><code><span class="number">1.</span>设置环境变量(会提示GB23错误）
+<span class="keyword">export</span> LC_ALL=en_US<span class="variable">.UTF</span>-<span class="number">8</span>
+<span class="keyword">export</span> LANG=en_US<span class="variable">.UTF</span>-<span class="number">8</span>
+
+<span class="number">2.</span>pygments<span class="variable">.rb</span>版本(会提示liquid错误）
+gem uninstall pygments<span class="variable">.rb</span> --version <span class="string">"=0.5.2"</span>
+gem uninstall pygments<span class="variable">.rb</span> --version <span class="string">"=0.5.0"</span></code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/tools/" term="tools"/>
+    <category scheme="http://yoursite.com/categories/tools/" term="tools"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Android 运行bash]]></title>
+    <link href="http://yoursite.com/2013/08/16/2013-8-16-busybox/"/>
+    <id>http://yoursite.com/2013/08/16/2013-8-16-busybox/</id>
+    <published>2013-08-16T13:00:01.000Z</published>
+    <updated>2013-08-31T06:50:54.000Z</updated>
+    <content type="html"><![CDATA[<p>有些linux下的bash脚本需要在android下运行，可以通过以下方式修改</p>
+<pre><code><span class="title">cd</span> /<span class="typedef"><span class="keyword">data</span>/</span>
+<span class="title">mkdir</span> bbin
+<span class="title">cd</span> bbin
+<span class="title">busybox</span> <span class="comment">--install -s .</span>
+<span class="title">export</span> <span class="type">PATH</span>=$<span class="type">PWD</span>:$<span class="type">PATH</span>
+修改脚本开头为
+#!busybox sh</code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/tags/bash/" term="bash"/>
+    <category scheme="http://yoursite.com/categories/android/" term="android"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[关于adb使用的一些技巧]]></title>
+    <link href="http://yoursite.com/2013/08/16/2013-8-30-adb-ticks/"/>
+    <id>http://yoursite.com/2013/08/16/2013-8-30-adb-ticks/</id>
+    <published>2013-08-16T13:00:00.000Z</published>
+    <updated>2013-08-31T06:50:38.000Z</updated>
+    <content type="html"><![CDATA[<p>关于adb使用的一些技巧  </p>
+<pre><code><span class="number">1</span>.判断连接启动
+    <span class="keyword">if</span> echo <span class="variable">$(</span>adb get-<span class="keyword">state</span>)|<span class="keyword">grep</span> <span class="string">"device"</span>;then
+        <span class="keyword">if</span> adb shell getprop|<span class="keyword">grep</span> <span class="string">"sys.boot_completed"</span> &gt;<span class="regexp">/dev/null</span>;then
+                    echo Device connected
+                    echo Device Boot Completed
+                    <span class="keyword">break</span>
+        <span class="keyword">else</span>
+                    echo Device Boot Not Completed
+                    <span class="keyword">sleep</span> <span class="number">3</span>
+        fi
+    <span class="keyword">else</span>
+
+
+<span class="number">2</span>.查询包安装
+adb shell pm list packages|<span class="keyword">grep</span> <span class="string">"<span class="variable">$1</span>"</span>
+<span class="number">3</span>.杀掉应用
+adb shell am <span class="keyword">kill</span>-all
+am force-stop com.android.browser
+
+<span class="number">4</span>.启动应用
+网页
+adb shell <span class="string">"am start -a android.intent.action.VIEW -d file:///data/test/index.html"</span>   
+音乐
+adb shell <span class="string">"am start -n com.android.music/.MediaPlaybackActivity -d /sdcard/Audio/1.mp3"</span>    
+benchmark
+adb shell <span class="string">"am start ca.primatelabs.geekbench2/.HomeActivity"</span>
+
+<span class="number">5</span>.等待应用
+Music
+<span class="keyword">while</span> [ <span class="number">1</span> = <span class="number">1</span> ]
+<span class="keyword">do</span>    
+    last_write=<span class="variable">$(</span>adb shell dumpsys media.audio_flinger|<span class="keyword">grep</span> <span class="keyword">last</span>|awk <span class="string">'{print $5}'</span>)
+    <span class="keyword">if</span> [ <span class="variable">$last_write</span> -<span class="keyword">gt</span> <span class="number">2000</span> ];then
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>
+        <span class="keyword">sleep</span> <span class="number">2</span>
+    fi
+done    
+
+benchmark
+<span class="keyword">while</span> [ <span class="number">1</span> = <span class="number">1</span> ]
+<span class="keyword">do</span> 
+    <span class="keyword">if</span> dumpsys activity|<span class="keyword">grep</span> <span class="string">"ca.primatelabs.geekbench2/.DocumentActivity"</span>;then
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>       
+        <span class="keyword">sleep</span> <span class="number">1</span>
+        <span class="keyword">continue</span>
+    fi
+done    
+<span class="number">6</span>.截图
+adb shell screencap -p /sdcard/<span class="number">1</span>.png    
+
+<span class="number">7</span>.按键控制
+adb shell input keyevent <span class="number">19</span>
+<span class="number">19</span>:up
+<span class="number">20</span>:down
+<span class="number">21</span>:left
+<span class="number">22</span>:right
+<span class="number">66</span>:Enter
+<span class="number">4</span>: ESC
+<span class="number">26</span>: POWER
+<span class="number">82</span>:MENU
+
+<span class="number">8</span>.自动解锁
+<span class="keyword">if</span> adb shell dumpsys power|<span class="keyword">grep</span> mWakefulness|<span class="keyword">grep</span> Asleep;then
+    adb shell input keyevent <span class="number">26</span> <span class="comment">#POWER       </span>
+fi
+<span class="keyword">sleep</span> <span class="number">1</span>
+adb shell input keyevent <span class="number">82</span> <span class="comment">#MENU   </span></code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/tags/adb/" term="adb"/>
+    <category scheme="http://yoursite.com/categories/tools/" term="tools"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[VIM操作速记]]></title>
+    <link href="http://yoursite.com/2013/08/15/2013-8-15-vim/"/>
+    <id>http://yoursite.com/2013/08/15/2013-8-15-vim/</id>
+    <published>2013-08-15T13:00:00.000Z</published>
+    <updated>2013-08-31T06:51:08.000Z</updated>
+    <content type="html"><![CDATA[<p>VIM 操作备忘<br>1）移动</p>
+<pre><code><span class="title">a</span>) 光标移动：
+四个方向
+   k
+ h <span class="number">0</span> l
+   j
+<span class="title">b</span>) 翻页   
+<span class="title">ctrl</span>+f, ctrl+b                 向下翻页，向上翻页
+<span class="title">ctrl</span>+d, ctrl+u                 向下半翻页，向上半翻页
+
+<span class="title">c</span>)其他
+$    移动行尾
+<span class="number">0</span>    移动行首
+<span class="title">w</span>    移动下一个词
+<span class="title">b</span>    移动到上一个词
+<span class="title">gg</span>   跳到文档的开始处
+<span class="type">G</span>    跳到文档的末尾</code></pre>
+<p>2)代码整理</p>
+<p>   a)删除行尾空格</p>
+<pre><code>% <span class="regexp">s/\s\+$//g</span> </code></pre>
+<p>   b)代码格式化<br>        gg</p>
+<pre><code>    <span class="keyword">Shift</span>+v
+
+    <span class="keyword">Shift</span>+g
+
+    =</code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/vim/" term="vim"/>
+    <category scheme="http://yoursite.com/categories/tools/" term="tools"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[显示task在哪个cpu的脚本]]></title>
+    <link href="http://yoursite.com/2013/08/08/2013-8-8-pscpu/"/>
+    <id>http://yoursite.com/2013/08/08/2013-8-8-pscpu/</id>
+    <published>2013-08-08T13:00:00.000Z</published>
+    <updated>2013-08-31T06:51:20.000Z</updated>
+    <content type="html"><![CDATA[<p>为了显示task在SMP上的分布情况，写了个简陋的bash脚本,如下</p>
+<pre><code><span class="comment">#/bin/bash                                                                                                              </span>
+<span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$2</span>"</span> = <span class="string">"x"</span> ]</span>;<span class="keyword">then</span>
+        loop=0
+<span class="keyword">else</span>
+        loop=1
+<span class="keyword">fi</span>
+<span class="keyword">while</span> <span class="test_condition">[ 1 -eq 1 ]</span>
+<span class="keyword">do</span>
+printf <span class="string">"pid\tcpu0\tcpu1\tcpu2\tcpu3\tcpu4\n"</span>
+<span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$1</span>"</span> = <span class="string">"x"</span> ]</span>;<span class="keyword">then</span>
+        PIDLIST=`ls /proc/|grep <span class="string">"^[0-9]"</span>`
+<span class="keyword">else</span>
+        PIDLIST=`pidof <span class="variable">$1</span>`
+<span class="keyword">fi</span>
+<span class="keyword">for</span> PROC <span class="keyword">in</span> <span class="variable">$PIDLIST</span>
+<span class="keyword">do</span>
+        <span class="keyword">if</span> <span class="test_condition">[ -f /proc/<span class="variable">$PROC</span>/stat ]</span>;<span class="keyword">then</span>
+                cpu=`cat /proc/<span class="variable">$PROC</span>/stat|awk <span class="string">'{print $39}'</span>`
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x0"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\tX\t \t \t \t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x1"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \tX\t \t \t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x2"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \t \tX\t \t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x3"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \t \t \tX\t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x4"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \t \t \t \tX\n"</span>
+                <span class="keyword">fi</span>
+        <span class="keyword">fi</span>
+<span class="keyword">done</span>
+<span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$loop</span>"</span> = <span class="string">"x0"</span> ]</span>;<span class="keyword">then</span>
+<span class="keyword">exit</span> 0
+<span class="keyword">fi</span>
+sleep 1
+<span class="keyword">done</span></code></pre>
+<p>用法:<br>全部显示 ./pscpu.sh<br>显示某个AP的 ./pscpu.sh bash<br>循环显示 ./pscpu.sh bash 1</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/cpu/" term="cpu"/>
+    <category scheme="http://yoursite.com/tags/bash/" term="bash"/>
+    <category scheme="http://yoursite.com/categories/bash/" term="bash"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Android on noGPU porting]]></title>
+    <link href="http://yoursite.com/2013/07/14/2013-7-14-android-nogpu/"/>
+    <id>http://yoursite.com/2013/07/14/2013-7-14-android-nogpu/</id>
+    <published>2013-07-14T13:00:00.000Z</published>
+    <updated>2013-08-31T06:51:34.000Z</updated>
+    <content type="html"><![CDATA[<ol>
+<li><p>Android on noGPU porting</p>
+<pre><code> <span class="number">1</span>)egl<span class="preprocessor">.cfg</span>
+ <span class="number">0</span> <span class="number">0</span> android
+ <span class="number">2</span>) remove gpu special gralloc<span class="preprocessor">.so</span> <span class="keyword">and</span> other <span class="preprocessor">.so</span>
+ <span class="number">3</span>)frameworks/base/packages/SettingsProvider/res/values/defaults<span class="preprocessor">.xml</span>
+ - &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">15000</span>&lt;/integer&gt;
+ + &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">600000</span>&lt;/integer&gt;
+ <span class="number">4</span>)frameworks/base/core/java/android/content/pm/PackageParser<span class="preprocessor">.java</span>
+ - boolean hardwareAccelerated = sa<span class="preprocessor">.getBoolean</span>(
+ + boolean hardwareAccelerated = false<span class="comment">;/*sa.getBoolean(</span>
+ <span class="keyword">com</span><span class="preprocessor">.android</span><span class="preprocessor">.internal</span><span class="preprocessor">.R</span><span class="preprocessor">.styleable</span><span class="preprocessor">.AndroidManifestApplication</span>_hardwareAccelerated,
+ - owner<span class="preprocessor">.applicationInfo</span><span class="preprocessor">.targetSdkVersion</span> &gt;= Build<span class="preprocessor">.VERSION</span>_CODES<span class="preprocessor">.ICE</span>_CREAM_SANDWICH)<span class="comment">;</span>
+ + owner<span class="preprocessor">.applicationInfo</span><span class="preprocessor">.targetSdkVersion</span> &gt;= Build<span class="preprocessor">.VERSION</span>_CODES<span class="preprocessor">.ICE</span>_CREAM_SANDWICH)<span class="comment">;*/</span>
+ <span class="number">5</span>)frameworks/base/core/java/android/view/ViewRootImpl<span class="preprocessor">.java</span>
+ - boolean hardwareAccelerated =
+ - (attrs<span class="preprocessor">.flags</span> &amp; WindowManager<span class="preprocessor">.LayoutParams</span><span class="preprocessor">.FLAG</span>_HARDWARE_ACCELERATED) != <span class="number">0</span><span class="comment">;</span>
+ + boolean hardwareAccelerated =false<span class="comment">;</span>
+ + //
+ <span class="number">6</span>)frameworks/base/core/java/android/view/Window<span class="preprocessor">.java</span>
+ - mHardwareAccelerated = hardwareAccelerated
+ - || SystemProperties<span class="preprocessor">.getBoolean</span>(PROPERTY_HARDWARE_UI, false)<span class="comment">;</span>
+ + mHardwareAccelerated = <span class="comment">/*hardwareAccelerated
+ + || SystemProperties.getBoolean(PROPERTY_HARDWARE_UI, false);*/</span>false<span class="comment">;</span>
+ <span class="number">7</span>)frameworks/base/packages/SettingsProvider/res/values/defaults<span class="preprocessor">.xml</span>
+ - &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">60000</span>&lt;/integer&gt;
+ + &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">600000</span>&lt;/integer&gt;
+ <span class="number">8</span>)frameworks/base/packages/SystemUI/src/<span class="keyword">com</span>/android/systemui/ImageWallpaper<span class="preprocessor">.java</span>
+ if (!isEmulator()) {
+ - mIsHwAccelerated = ActivityManager<span class="preprocessor">.isHighEndGfx</span>()<span class="comment">;</span>
+ + mIsHwAccelerated = false<span class="comment">;//ActivityManager.isHighEndGfx();</span>
+ <span class="number">9</span>)policy/src/<span class="keyword">com</span>/android/internal/policy/impl/keyguard/KeyguardViewMediator<span class="preprocessor">.java</span>
+ - private boolean mExternallyEnabled = true<span class="comment">;</span>
+ + private boolean mExternallyEnabled = false<span class="comment">;</span>
+ <span class="number">10</span>)services/java/<span class="keyword">com</span>/android/server/DynamicPManagerService<span class="preprocessor">.java</span>
+ mask some special operation to cpufreq sysfs interface
+ <span class="number">11</span>)services/java/<span class="keyword">com</span>/android/server/power/PowerManagerService<span class="preprocessor">.java</span>
+ @@ -<span class="number">1589</span>,<span class="number">8</span> +<span class="number">1589</span>,<span class="number">10</span> @@ public final class PowerManagerService extends IPowerManager<span class="preprocessor">.Stub</span>
+ if (shouldNapAtBedTimeLocked()) {
+ changed = napNoUpdateLocked(time)<span class="comment">;</span>
+ } else {
+ - changed = goToSleepNoUpdateLocked(time,
+ - PowerManager<span class="preprocessor">.GO</span>_TO_SLEEP_REASON_TIMEOUT)<span class="comment">;</span>
+ + Slog<span class="preprocessor">.i</span>(TAG, “updateWakefulnessLocked”)<span class="comment">;</span>
+ + changed = false<span class="comment">;</span>
+ + //goToSleepNoUpdateLocked(time,
+ + // PowerManager<span class="preprocessor">.GO</span>_TO_SLEEP_REASON_TIMEOUT)<span class="comment">;</span>
+ <span class="number">12</span>)libs/gui/Android<span class="preprocessor">.mk</span>
+ + LOCAL_CFLAGS += -DUSE_FENCE_SYNC
+ <span class="number">13</span>)system/core/init/property_service<span class="preprocessor">.c</span>
+ { “selinux.” , AID_SYSTEM, <span class="number">0</span> },
+ + { “service<span class="preprocessor">.bootanim</span><span class="preprocessor">.exit</span>”, AID_GRAPHICS, <span class="number">0</span> },
+ { NULL, <span class="number">0</span>, <span class="number">0</span> }
+ <span class="number">2.</span> start logcat method
+ <span class="number">1</span>) init<span class="preprocessor">.rc</span>
+ +service logcat /system/bin/logcat -f /dev/kmsg
+ + user root
+ + group root
+ + disabled
+ + oneshot
+ on property:ro<span class="preprocessor">.debuggable</span>=<span class="number">1</span>
+ start console
+ + start logcat
+ <span class="number">2</span>)logcat/logcat<span class="preprocessor">.cpp</span>
+ -<span class="preprocessor">#define ENABLE_KERNEL_LOG 1</span>
+ +//<span class="preprocessor">#define ENABLE_KERNEL_LOG 1</span></code></pre>
+</li>
+</ol>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/gpu/" term="gpu"/>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/categories/android/" term="android"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[android里fork挂起的问题(by cpuacct_add)]]></title>
+    <link href="http://yoursite.com/2013/07/13/2013-7-13-android-fork-bug/"/>
+    <id>http://yoursite.com/2013/07/13/2013-7-13-android-fork-bug/</id>
+    <published>2013-07-13T13:00:00.000Z</published>
+    <updated>2013-08-31T06:51:52.000Z</updated>
+    <content type="html"><![CDATA[<p>android里fork挂起</p>
+<p>现象）</p>
+<p>1) QQ管家-&gt;调用libcore里的java_lang_ProcessManager.cpp</p>
+<pre><code>pid_t childPid = fork();
+// If fork() failed…
+<span class="keyword">if</span> (childPid == -<span class="number">1</span>) {
+jniThrowIOException(env, errno);
+closePipes(pipes, -<span class="number">1</span>);
+<span class="command">return</span> -<span class="number">1</span>;
+}
+
+// If this <span class="keyword">is</span> <span class="keyword">the</span> child process…
+<span class="keyword">if</span> (childPid == <span class="number">0</span>) {
+/*
+* Note: We cannot malloc() <span class="keyword">or</span> free() <span class="keyword">after</span> this point!
+* A no-longer-<span class="property">running</span> thread may be holding <span class="function_start"><span class="keyword">on</span> <span class="title">to</span></span> <span class="keyword">the</span> heap lock, <span class="keyword">and</span>
+* an attempt <span class="keyword">to</span> malloc() <span class="keyword">or</span> free() would <span class="constant">result</span> <span class="keyword">in</span> deadlock.
+*/</code></pre>
+<p>2) 子进程挂死，父进程等子进程，也挂死</p>
+<p>3) 通过ps查看PC,　子进程在futex函数，　父进程在read函数</p>
+<p>4)通过strace -p pid连接上去，和３的结论类似</p>
+<p>5) 通过google fork futex android.　查找到4.0上有类似patch修复问题</p>
+<p>因为fork里调用了cpuacct_add函数，而该函数里调用的函数引起了malloc-&gt;futex，造成死锁</p>
+<p>这个在java_lang_ProcessManager.cpp里也说了要避免</p>
+<p>6) 应用patch,QQ管家OK,但有些测试APK不过(该patch替换了fopen和fprintf)</p>
+<p>7)　继续定位，发现似乎snprintf也会引起malloc</p>
+<p>8)　修改代码，不使用snprintf,自己实现itoa(应该也可以使用bionic里自带的）</p>
+<p>9)　测试通过</p>
+<pre><code><span class="comment"><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span>/patch<span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span></span>
+diff –git a/libc/bionic/cpuacct.c b/libc/bionic/cpuacct.c
+old mode <span class="number">100644</span>
+<span class="keyword">new</span> mode <span class="number">100755</span>
+index <span class="number">7317073.</span>.aed9734
+— a/libc/bionic/cpuacct.c
++++ b/libc/bionic/cpuacct.c
+@@ -<span class="number">30</span>,<span class="number">16</span> +<span class="number">30</span>,<span class="number">60</span> @@
+<span class="preprocessor">#include &lt;errno.h&gt;</span>
+<span class="preprocessor">#include &lt;sys/stat.h&gt;</span>
+<span class="preprocessor">#include “cpuacct.h”</span>
++<span class="preprocessor">#include &lt;fcntl.h&gt;</span>
+
++
++<span class="keyword">static</span> <span class="keyword">int</span> my_itoa(<span class="keyword">int</span> val, <span class="keyword">char</span>* buf)
++{
++ <span class="keyword">const</span> unsigned <span class="keyword">int</span> radix = <span class="number">10</span>;
++ <span class="keyword">char</span>* p;
++ unsigned <span class="keyword">int</span> a; <span class="comment">//every digit</span>
++ <span class="keyword">int</span> len;
++ <span class="keyword">char</span>* b; <span class="comment">//start of the digit char</span>
++ <span class="keyword">char</span> temp;
++ unsigned <span class="keyword">int</span> u;
++ p = buf;
++ <span class="keyword">if</span> (val &lt; <span class="number">0</span>)
++ {
++ *p++ = ‘-’;
++ val = <span class="number">0</span> – val;
++ }
++ u = (unsigned <span class="keyword">int</span>)val;
++ b = p;
++ <span class="keyword">do</span>
++ {
++ a =u%radix;
++ u /= radix;
++ *p++ = a + ’<span class="number">0</span>′;
++ } <span class="keyword">while</span> (u &gt; <span class="number">0</span>);
++ len = (<span class="keyword">int</span>)(p – buf);
++ *p– = <span class="number">0</span>;
++
++ <span class="comment">//swap</span>
++ <span class="keyword">do</span>
++ {
++ temp = *p;
++ *p = *b;
++ *b = temp;
++ –p;
++ ++b;
++ } <span class="keyword">while</span> (b &lt; p);
++ <span class="keyword">return</span> len;
++}
+<span class="keyword">int</span> cpuacct_add(uid_t uid)
+{
+<span class="keyword">int</span> count;
+- FILE *fp;
++ <span class="keyword">int</span> fd;
++ <span class="keyword">char</span> zero[] = “<span class="number">0</span>″;
+<span class="keyword">char</span> buf[<span class="number">80</span>];
+
+- count = snprintf(buf, <span class="keyword">sizeof</span>(buf), “/acct/uid/%d/tasks”, uid);
+- fp = fopen(buf, “w+”);
+- <span class="keyword">if</span> (!fp) {
++ memset(buf,<span class="number">0</span>×<span class="number">0</span>,<span class="number">80</span>);
++ strcpy(buf, “/acct/uid/”);
++ my_itoa(uid,buf+strlen(buf));
++ strcpy(buf+strlen(buf), “/tasks”);
++count=strlen(buf);
++ fd = open(buf,O_RDWR | O_CREAT);
++ <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) {
+<span class="comment">/* Note: sizeof(“tasks”) returns 6, which includes the NULL char */</span>
+buf[count - <span class="keyword">sizeof</span>(<span class="string">"tasks"</span>)] = <span class="number">0</span>;
+<span class="keyword">if</span> (mkdir(buf, <span class="number">0775</span>) &lt; <span class="number">0</span>)
+@@ -<span class="number">47</span>,<span class="number">13</span> +<span class="number">91</span>,<span class="number">14</span> @@ <span class="keyword">int</span> cpuacct_add(uid_t uid)
+
+<span class="comment">/* Note: sizeof(“tasks”) returns 6, which includes the NULL char */</span>
+buf[count - <span class="keyword">sizeof</span>(<span class="string">"tasks"</span>)] = ‘/’;
+- fp = fopen(buf, “w+”);
++ fd = open(buf, O_RDWR | O_CREAT);
+}
+- <span class="keyword">if</span> (!fp)
++
++ <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)
+<span class="keyword">return</span> -errno;
+
+- fprintf(fp, “<span class="number">0</span>″);
+- <span class="keyword">if</span> (fclose(fp))
++ write(fd, zero, <span class="keyword">sizeof</span>(zero));
++ <span class="keyword">if</span> (close(fd))
+<span class="keyword">return</span> -errno;
+
+<span class="keyword">return</span> <span class="number">0</span>;</code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/fork/" term="fork"/>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/categories/buglist/" term="buglist"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[soft lockup BUG in android]]></title>
+    <link href="http://yoursite.com/2013/07/12/2013-7-12-softlockup-bug/"/>
+    <id>http://yoursite.com/2013/07/12/2013-7-12-softlockup-bug/</id>
+    <published>2013-07-12T13:00:00.000Z</published>
+    <updated>2013-08-31T06:52:10.000Z</updated>
+    <content type="html"><![CDATA[<p>现象:</p>
+<p>发现Video解码 + GPU驱动copybit时,有softlockup打印</p>
+<p>此时打印寄存器现场, 有do_softirq提示,但无其他提示</p>
+<p>定位:</p>
+<p>1) 找了一个patch,号称可以让do_softirq打印更多信息，但试了没帮助（这个后面有解释）</p>
+<p>2)　发现kernel/softlockup.c里有</p>
+<p>if(regs)</p>
+<p>打印regs</p>
+<p>else</p>
+<p>dumpstack</p>
+<p>把else注释掉，打印信息里有GPU的函数信息</p>
+<p>3)　在GPU驱动里加了很多打印，或者代码review，未发现问题</p>
+<p>4) 　想起一个ethernet的softlockup问题，因为ehternet clock不对，造成irq pending清除不掉，一直进irq handle</p>
+<p>5) 　在video的irq_handle里加打印，发现果然irq pending清楚不掉，进而发现video模块的regs无法写入，怀疑也可能是clock问题，转硬件人员协助跟进</p>
+<p>结论：</p>
+<p>１）　为什么会打印do_softirq,　因为video模块的irq_handle代码很少，就清理pending，然后complete,　而ethernet的irq handler比较长，所以softlockup dumpstack提示了ethernet的irq_handle信息，而我们始终无法从打印中获取任何video驱动的函数信息</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/lockup/" term="lockup"/>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/categories/buglist/" term="buglist"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[repo sync -f]]></title>
+    <link href="http://yoursite.com/2013/07/11/2013-7-11-repo-sync-force/"/>
+    <id>http://yoursite.com/2013/07/11/2013-7-11-repo-sync-force/</id>
+    <published>2013-07-11T13:00:00.000Z</published>
+    <updated>2013-08-31T06:52:26.000Z</updated>
+    <content type="html"><![CDATA[<p>google最新的repo sync -f按说明似乎可以跳过无法下载的代码</p>
+<p>本来打算用这个来做权限管理(没权限的自动跳过),这样只要维护一个manifes.xml</p>
+<p>发现repo sync -f 仍然有错</p>
+<p>尝试fix如下:</p>
+<pre><code>— a/subcmds/sync<span class="variable">.py</span>
++++ b/subcmds/sync<span class="variable">.py</span>
+@@ -<span class="number">163</span>,<span class="number">6</span> +<span class="number">163</span>,<span class="number">7</span> @@ later is <span class="keyword">required</span> to fix a server side <span class="class"><span class="keyword">protocol</span> <span class="id">bug</span>.</span>
+print &gt;&gt;sys<span class="variable">.stderr</span>, ’error: Cannot fetch %s’ % project<span class="variable">.name</span>
+<span class="keyword">if</span> opt<span class="variable">.force_broken</span>:
+print &gt;&gt;sys<span class="variable">.stderr</span>, ’warn: –force-broken, continuing to sync’
++           os<span class="variable">.popen</span>(‘rm -rf %s’%project<span class="variable">.gitdir</span>)
+<span class="keyword">else</span>:
+sys<span class="variable">.exit</span>(<span class="number">1</span>)
+<span class="keyword">else</span>:
+@@ -<span class="number">186</span>,<span class="number">7</span> +<span class="number">187</span>,<span class="number">11</span> @@ later is <span class="keyword">required</span> to fix a server side <span class="class"><span class="keyword">protocol</span> <span class="id">bug</span>.</span>
+
+pm<span class="variable">.end</span>()
+<span class="keyword">for</span> project in projects:
+-      project<span class="variable">.bare_git</span><span class="variable">.gc</span>(‘–auto’)
++      <span class="keyword">if</span> opt<span class="variable">.force_broken</span>:
++        <span class="keyword">if</span> os<span class="variable">.path</span><span class="variable">.exists</span>(project<span class="variable">.gitdir</span>):
++          project<span class="variable">.bare_git</span><span class="variable">.gc</span>(‘–auto’)
++      <span class="keyword">else</span>:
++        project<span class="variable">.bare_git</span><span class="variable">.gc</span>(‘–auto’)
+<span class="keyword">return</span> fetched
+
+def UpdateProjectList(<span class="keyword">self</span>):
+@@ -<span class="number">364</span>,<span class="number">7</span> +<span class="number">369</span>,<span class="number">13</span> @@ uncommitted changes are present’ % project<span class="variable">.relpath</span>
+<span class="keyword">for</span> project in all:
+pm<span class="variable">.update</span>()
+<span class="keyword">if</span> project<span class="variable">.worktree</span>:
+-        project<span class="variable">.Sync_LocalHalf</span>(syncbuf)
++        <span class="keyword">if</span> opt<span class="variable">.force_broken</span>:
++         <span class="keyword">if</span> os<span class="variable">.path</span><span class="variable">.exists</span>(project<span class="variable">.gitdir</span>):
++            project<span class="variable">.Sync_LocalHalf</span>(syncbuf)
++         <span class="keyword">else</span>:
++           os<span class="variable">.popen</span>(‘rm -rf %s’%project<span class="variable">.worktree</span>)
++        <span class="keyword">else</span>:
++         project<span class="variable">.Sync_LocalHalf</span>(syncbuf)
+pm<span class="variable">.end</span>()
+print &gt;&gt;sys<span class="variable">.stderr</span>
+<span class="keyword">if</span> not syncbuf<span class="variable">.Finish</span>():</code></pre>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/repo/" term="repo"/>
+    <category scheme="http://yoursite.com/categories/tools/" term="tools"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[MIPS android 编译总结]]></title>
+    <link href="http://yoursite.com/2013/07/11/2012-7-11-android-mips-build/"/>
+    <id>http://yoursite.com/2013/07/11/2012-7-11-android-mips-build/</id>
+    <published>2013-07-11T13:00:00.000Z</published>
+    <updated>2013-08-31T06:52:50.000Z</updated>
+    <content type="html"><![CDATA[<ol>
+<li>参考文档<br>1.1 Obtaining MIPS Android Source Code    (<a href="http://www.mipsandroid.com/documents/show/1" target="_blank">http://www.mipsandroid.com/documents/show/1</a>)<br>1.2 Compiling Android for MIPS (<a href="http://www.awakecoding.com/index.php?option=com_content&amp;view=article&amp;id=21:compiling-android-for-mips" target="_blank">http://www.awakecoding.com/index.php?option=com_content&amp;view=article&amp;id=21:compiling-android-for-mips</a>)<br>1.3 移植Android到MIPS平台（续） (<a href="http://my.unix-center.net/~Simon_fu/?p=557" target="_blank">http://my.unix-center.net/~Simon_fu/?p=557</a>) </li>
+<li><p>环境准备<br>2.1 安装ubuntu(使用virtulbox)<br>2.2 安装其他需要工具<br>sudo apt-get install gcc build-essential git-core libreadline-dev zip curl wget valgrind python eclipse ecj flex bison gperf libsdl-dev libwxgtk2.6-dev libgmp3-dev libsds-dev clearsilver-dev libclearsilver-perl python-clearsilver gcc-multilib g++-multilib<br>2.3 安装java jdk<br>sudo apt-get sun-java5-jdk<br>sudo update-alternatives –config java  (选择刚安装完的JDK目录)<br>sudo update-alternatives –config javac<br>sudo update-alternatives –config javadoc<br>2.4 安装mips-4.3 toolchain<br>此步骤可省略，使用android自带的prebuilt toolchain即可</p>
+</li>
+<li><p>源码下载</p>
+<pre><code> <span class="variable">$ </span>curl <span class="symbol">http:</span>/<span class="regexp">/android.git.kernel.org/repo</span> &gt;~<span class="regexp">/bin/repo</span>
+ <span class="variable">$ </span>chmod a+x ~<span class="regexp">/bin/repo</span>
+ <span class="variable">$ </span>mkdir mipsandroid
+ <span class="variable">$ </span>cd mipsandroid
+ <span class="variable">$ </span>repo init -u <span class="symbol">git:</span>/<span class="regexp">/public.mipsandroid.com/mips</span><span class="regexp">/platform/manifest</span>.git -b mips-eclair
+ <span class="variable">$ </span>repo sync</code></pre>
+</li>
+<li><p>编译<br>4.1 准备<br>在mipsandroid下添加env.sh如下</p>
+<pre><code> export <span class="constant">TOP</span>=’pwd’
+ export <span class="constant">J2RE_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun/jre
+ export <span class="constant">JAVA_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun
+ export <span class="constant">ANDROID_JAVA_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun
+ source build/envsetup.sh
+ export <span class="constant">USE_CCACHE</span>=<span class="number">1</span>
+ export <span class="constant">TARGET_ARCH_VERSION</span>=mips32r2
+ export <span class="constant">TARGET_ARCH</span>=mips
+ export <span class="constant">ANDROID_PRODUCT_OUT</span>=~<span class="regexp">/android/mipsandroid</span><span class="regexp">/out/target</span><span class="regexp">/product/generic</span>
+ export <span class="constant">PATH</span>=<span class="variable">$PATH</span><span class="symbol">:~/android/mipsandroid/out/host/linux-x86/bin/</span></code></pre>
+</li>
+</ol>
+<p>4.2 步骤<br>source env.sh<br>make<br>4.3 此时已生成emulator和对应的system.img ramdisk.img userdata.img(kernel-qemu使用prebuilt的）</p>
+<p>4.3问题总结<br>之前由于PRODUCT指定不对，造成编译出的init使用了hard float point的libc，重新make clean;make解决</p>
+<p>5.编译SDK<br>5.1 执行<br>在4步骤完成后<br>make sdk</p>
+<p>5.2 问题总结<br>5.2.1 提示crtbegin_so.S找不到<br>修改bionic/libc/Android.mk如下，注释掉</p>
+<pre><code>#ifeq ($(TARGET_ARCH),mips)
+# we only need begin_so/end_so <span class="keyword">for</span> mips, since it needs an appropriate .init
+# section <span class="keyword">in</span> the shared library <span class="keyword">with</span> a <span class="function"><span class="keyword">function</span> <span class="title">to</span> <span class="title">call</span> <span class="title">all</span> <span class="title">the</span> <span class="title">entries</span> <span class="title">in</span>
+# .<span class="title">ctors</span> <span class="title">section</span>.
+#<span class="title">GEN</span> := <span class="title">$</span><span class="params">(TARGET_OUT_STATIC_LIBRARIES)</span>/<span class="title">crtbegin_so</span>.<span class="title">o</span>
+#<span class="title">$</span><span class="params">(GEN)</span>: <span class="title">$</span><span class="params">(LOCAL_PATH)</span>/<span class="title">arch</span>-<span class="title">$</span><span class="params">(TARGET_ARCH)</span>/<span class="title">bionic</span>/<span class="title">crtbegin_so</span>.<span class="title">S</span>
+#    @<span class="title">mkdir</span> -<span class="title">p</span> <span class="title">$</span><span class="params">(dir $@)</span>
+#    <span class="title">$</span><span class="params">(TARGET_CC)</span> <span class="title">$</span><span class="params">(libc_crt_target_cflags)</span> -<span class="title">o</span> <span class="title">$</span>@ -<span class="title">c</span> <span class="title">$</span>&lt;
+#<span class="title">ALL_GENERATED_SOURCES</span> += <span class="title">$</span><span class="params">(GEN)</span>
+#
+#<span class="title">GEN</span> := <span class="title">$</span><span class="params">(TARGET_OUT_STATIC_LIBRARIES)</span>/<span class="title">crtend_so</span>.<span class="title">o</span>
+#<span class="title">$</span><span class="params">(GEN)</span>: <span class="title">$</span><span class="params">(LOCAL_PATH)</span>/<span class="title">arch</span>-<span class="title">$</span><span class="params">(TARGET_ARCH)</span>/<span class="title">bionic</span>/<span class="title">crtend_so</span>.<span class="title">S</span>
+#    @<span class="title">mkdir</span> -<span class="title">p</span> <span class="title">$</span><span class="params">(dir $@)</span>
+#    <span class="title">$</span><span class="params">(TARGET_CC)</span> <span class="title">$</span><span class="params">(libc_crt_target_cflags)</span> -<span class="title">o</span> <span class="title">$</span>@ -<span class="title">c</span> <span class="title">$</span>&lt;
+#<span class="title">ALL_GENERATED_SOURCES</span> += <span class="title">$</span><span class="params">(GEN)</span>
+#<span class="title">endif</span> # <span class="title">TARGET_ARCH</span> == <span class="title">mips</span></code></pre>
+<p>5.2.2 生成的linux sdk使用不正常，发现kernel-qemu拷贝的是arm的，将其替换即可</p>
+<p>6.编译windows SDK<br>6.1 步骤<br>1)将mipsandroid拷贝到cygwin里<br>2)windows安装java jdk<br>3)修改env.sh</p>
+<pre><code>export <span class="constant">TOP</span>=’pwd’
+export <span class="constant">J2RE_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>/jre
+export <span class="constant">JAVA_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>
+export <span class="constant">ANDROID_JAVA_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>
+source build/envsetup.sh
+export <span class="constant">TARGET_ARCH_VERSION</span>=mips32r2
+export <span class="constant">TARGET_ARCH</span>=mips
+export <span class="constant">ANDROID_PRODUCT_OUT</span>=~<span class="regexp">/android/mipsandroid</span><span class="regexp">/out/target</span><span class="regexp">/product/generic</span>
+export <span class="constant">PATH</span>=<span class="variable">$PATH</span><span class="symbol">:/cygdrive/c/Java/jdk1</span>.<span class="number">5.0_20</span>/bin</code></pre>
+<p>4)修改make_windows_sdk.sh，增加acp编译（android 2.2)，修改cygwin目录，删除adb/fastboot编译（android 2.2)，如下</p>
+<pre><code>a) CYG_MGWZ_PATH=/cygdrive/c/cygwin/bin/mgwz.dll                                                           -&gt;  CYG_MGWZ_PATH=/cygdrive/e/cygwin/bin/mgwz.dll
+b) SDK_NUMBER=`echo $filename | sed -n ‘s/^.*_([^_./]+)_[^_.]*..*$/<span class="number">1</span>/p’` -&gt;  SDK_NUMBER=<span class="number">2.2</span>
+c)    aapt adb aidl
+etc1tool
+prebuilt
+dexdump dmtracedump
+fastboot
+-&gt;
+acp aapt aidl
+etc1tool
+prebuilt
+dexdump dmtracedump
+d) cp -v out/host/windows-x86/bin/*.{exe,dll} “$TOOLS”/ -&gt;  cp -v out/host/windows-x86/bin/*.exe “$TOOLS”/
+e)
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v $CYG_MGWZ_PATH “$TOOLS”/
+-&gt;
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v $CYG_MGWZ_PATH “$TOOLS”/
+cp -v /cygdrive/e/cygwin/bin/cygz.dll “$TOOLS”/
+cp -v /cygdrive/e/cygwin/bin/cygwin1.dll “$TOOLS”/
+f)
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v “$TOOLS”/mgwz.dll “$PLATFORM_TOOLS”/
+-&gt;
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v “$TOOLS”/mgwz.dll “$PLATFORM_TOOLS”/
+cp -v “$TOOLS”/cygz.dll “$PLATFORM_TOOLS”/
+cp -v “$TOOLS”/cygwin1.dll “$PLATFORM_TOOLS”/</code></pre>
+<p>5)修改external/sqlite/dist/shell.c</p>
+<pre><code>#if defined(HAVE_READLINE) &amp;&amp; HAVE_READLINE==1  -&gt; #if 0
+# include <span class="tag">&lt;<span class="title">readline</span>/<span class="attribute">readline.h</span>&gt;</span>
+# include <span class="tag">&lt;<span class="title">readline</span>/<span class="attribute">history.h</span>&gt;</span></code></pre>
+<p>6.2 安装使用<br>kernel-qemu还是arm的，替换成mips的</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/mips/" term="mips"/>
+    <category scheme="http://yoursite.com/tags/android/" term="android"/>
+    <category scheme="http://yoursite.com/categories/mips/" term="mips"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[MIPS TLB]]></title>
+    <link href="http://yoursite.com/2013/07/10/2012-7-10-mips-tlb/"/>
+    <id>http://yoursite.com/2013/07/10/2012-7-10-mips-tlb/</id>
+    <published>2013-07-10T13:00:00.000Z</published>
+    <updated>2013-08-31T06:53:06.000Z</updated>
+    <content type="html"><![CDATA[<p>ASID + Virtual Address=&gt; TLB = G|ASID|VPN2(31~23)|CMASK|PFN0(31~12)|C|D|V|PFN1(31~12)|C|D|V</p>
+<p>VPN：</p>
+<p>虚地址的高位（即虚页地址）。在双入口TLB内被称作VPN2</p>
+<p>PageMask：</p>
+<p>控制使用虚地址的多少位来跟VPN进行比较;并决定多少位被通过后加入实地址；最大达16MB的内存</p>
+<p>ASID：</p>
+<p>Ø           标记这个TLB过程属于某一个特定进程，因此除非CPU的当前              ASID与之相吻合，否则匹配是不会成功的。</p>
+<p>Ø           ”G”这一位如果被置起为1，则关闭ASID的匹配，</p>
+<p>Ø           ASID位在早期CPU中为6位长度，而在近期的CPU中则为8位。</p>
+<p>TLB输出:  给出物理页号和标志位。</p>
+<p>Ø           PFN:物理页号</p>
+<p>Ø           C: 缓存控制</p>
+<p>Ø           D: 写控制位(为1则允许数据写入相应的页)</p>
+<p>Ø           V: Valid位,如果是0，则相应的入口是不可使用</p>
+<p>TLB HIT：</p>
+<pre><code><span class="attribute">1)CPU产生一个程序地址：</code></pre>
+<p>i)  无论是取指令，还是装入和写回数据；</p>
+<p>ii) 低12位被分离开来，剩下的处于EntryHi的VPN和ASID相拼作为TLB的键值</p>
+<p>iii) TLB入口中的PageMask位与C位对这个值有修改效果。</p>
+<pre><code><span class="attribute">2)TLB进行键值匹配：</code></pre>
+<p>匹配成功的入口被选出。PFN被附加在程序地址的低位之前以产生一个完整的物理地址。</p>
+<pre><code><span class="attribute">3)地址有效吗？</code></pre>
+<p>V位和D位被参考:  如果地址为无效或者正试图写一个D位为0的页，CPU产生Trap。</p>
+<pre><code>4)是否被缓存？  如果C位被置起，那么Cache取数；否则按策略取数</code></pre>
+<p>TLB MISS:</p>
+<p>1) 判断是否存在一个正确的转译；如果不存在，这个陷入会被派发到用于处理地址错误的程序中去。</p>
+<p>2) 假如存在一个正确的转译，那么创建一个用于实现转译的TLB入口。</p>
+<p>3)假如TLB已经装满（在运行中的系统中它基本上也总是满的），软件要选择一个可以丢弃的入口。</p>
+<p>4)软件把新的入口内容填入TLB。 </p>
+<pre><code>tlb refill exception(0×80000000):
+(1) get badvaddr,pgd
+(2) pte table ptr = badvaddr&gt;&gt;22 &lt; 2 + pgd ,
+(3) get context,off<span class="operator"><span class="keyword">set</span> = context &gt;&gt; <span class="number">1</span> &amp; <span class="number">0xff8</span> (<span class="keyword">bit</span> <span class="number">21</span>-<span class="number">13</span> + three zero),
+(<span class="number">4</span>) <span class="keyword">load</span> offset(pte <span class="keyword">table</span> ptr) <span class="keyword">and</span> offset+<span class="number">4</span>(pte <span class="keyword">table</span> ptr),
+*(<span class="number">5</span>) <span class="keyword">right</span> shift <span class="number">6</span> bits,<span class="keyword">write</span> <span class="keyword">to</span> entrylo[<span class="number">01</span>],
+(<span class="number">6</span>) tlbwr
+tlb modified <span class="keyword">exception</span>(handle_mod):
+(<span class="number">1</span>) <span class="keyword">load</span> pte,
+*(<span class="number">2</span>) if _PAGE_WRITE <span class="keyword">set</span>,<span class="keyword">set</span> ACCESSED | MODIFIED | VALID | DIRTY,          reload tlb,tlbwi
+<span class="keyword">else</span> DO_FAULT(<span class="number">1</span>)
+tlb <span class="keyword">load</span> <span class="keyword">exception</span>(handle_tlbl):
+(<span class="number">1</span>) <span class="keyword">load</span> pte
+(<span class="number">2</span>) if _PAGE_PRESENT &amp;&amp; _PAGE_READ, <span class="keyword">set</span> ACCESSED | VALID
+<span class="keyword">else</span> DO_FAULT(<span class="number">0</span>)
+tlb store <span class="keyword">exception</span>(handle_tlbs):
+(<span class="number">1</span>) <span class="keyword">load</span> pte
+*(<span class="number">2</span>) if _PAGE_PRESENT &amp;&amp; _PAGE_WRITE,<span class="keyword">set</span> ACCESSED | MODIFIED | VALID | DIRTY
+<span class="keyword">else</span> DO_FAULT(<span class="number">1</span>)</code></pre>
+<p>TLB Refill:  代码注释<br>    lui   k1,%hi(pgd_current)          //当前进程的PGD表地址高位<br>    mfc0  k0,C0_BADVADDR       //取TLB MISS vaddr地址<br>    lw    k1,%lo(pgd_current)(K1)  //(页表地址高位|低位) -&gt; k1<br>    srl   k0,K0,22                           //k0 右移22 bit;即pgd = 高10bit<br>    sll   k0,K0,2                             //k0 左移2bit;因为每项占４个字节,所以pgd<em>4<br>    addu  k1,K1,K0                       //k1=pgd_current+pgd_index</em>4;<br>    mfc0 k0,C0_Context               //context -&gt; k0<br>    lw   k1,0(k1)                            //k1&lt;- pgd_current[pgd_index];即PTE表入口<br>    srl   k0,k0,1         //k0右移1bit ,因为一次映射2页,去掉1bit<br>    andi   k0,k0,0xff8     //k0取9bit ;后面还有3bit,因为每项8BYTE<br>    addu  k1,k1,k0                        //pte_base + pte_index<br>    lw k0,0(k1)                           //k0&lt;- pte_base(pte_index):           entry0<br>    lw k1,sizeof(pte_t)(k1)       // k1&lt;- pte_base(pte_index) +４:    entry1<br>    srl k0,k0,6                            // k0右移6bit; 后6bit是软件位,不填到TLB里<br>    mtc0 k0,C0_ENTRYLO0<br>    srl k1,k1,6<br>    mtc0 k1,C0_ENTRYLO1<br>    sll    zero,zero,0×3               //ehb的gcc实现<br>    Tlbwr                                 //写入TLB<br>    eret</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/tlb/" term="tlb"/>
+    <category scheme="http://yoursite.com/tags/mips/" term="mips"/>
+    <category scheme="http://yoursite.com/categories/mips/" term="mips"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[MIPS cache]]></title>
+    <link href="http://yoursite.com/2013/07/09/2012-7-9-mips-cache/"/>
+    <id>http://yoursite.com/2013/07/09/2012-7-9-mips-cache/</id>
+    <published>2013-07-09T13:00:00.000Z</published>
+    <updated>2013-08-31T06:53:20.000Z</updated>
+    <content type="html"><![CDATA[<p>Cache Op</p>
+<p>cache ops, addr</p>
+<p>ops:</p>
+<p>占 5 位，低 2 位 Cache 类型 (L1 I, L1 D, L2, L3)，高3 位指定执行的操作。</p>
+<p>addr</p>
+<p>HIT操作:</p>
+<p>先用 addr 的组选位（位12~4）索引组，同时将 VA 经 TLB 转换为 PA，然后匹配 Tag，命中 (Hit) 则对相应的行执行操作，否则什么也不做。</p>
+<p>Index操作:</p>
+<p>无需匹配（不需要虚实地址转换），组选后直接用地址的中部（位14~13）进行组内索引（路选）：</p>
+<p>Cache init</p>
+<p>mtc0 zero, CP0_TAGLO                   //保证写入的TAG无效</p>
+<p>li   t0, CFG_DCACHE_SIZE              #cache total size</p>
+<p>li   t1, CFG_CACHELINE_SIZE        #cache line size</p>
+<p>li   t2, 0×80000000                     //保证不发生TLB异常,而且此地址                                          为最低位,一般SDRAM再小也能满足</p>
+<p>addu t3, t0, t2cacheloop:</p>
+<p>cache 8, 0(t2)  /<em> icache_index_store_tag </em>/</p>
+<p>cache 9, 0(t2)  /<em> dcache_index_store_tag </em>/</p>
+<p>addu t2, t1</p>
+<p>bne t2, t3, cacheloop</p>
+<p>nop</p>
+<p>Cache Alias</p>
+<p>定义:</p>
+<p>在使用 VA 索引，PA 匹配的 Cache 里，可能存在多个 VA 映射到同一个 PA 的情形（共享内存），这样的 Cache 是先用 VA 索引组，则他们可能会索引到不同的组（只要组索引位不一样），尽管尔后用于匹配的 PA Tag 相同，但因为不在同一组，因此无可避免的在Cache 中会有两个镜像。</p>
+<p>现象:</p>
+<p>设 VA1、VA2皆映射到 PA0，VA1 的组选位为 0，VA2的组选位为 3，某时用 VA1 取值后向 VA1更新数据，则对 write back 的 Cache 最新的数据缓存于 Cache 的组 0 (Set 0)，尔后用 VA2访问同一内存空间，则其取到的值并非是最新的，这即是典型的 Cache Aliases 造成的存储不一致的问题。</p>
+<p>判断:</p>
+<p>对于 VA 索引，PA 匹配的 Cache，如果 Way_Size &gt; PAGE_SIZE，则存在 Cache Aliases 的问题</p>
+<p>颜色位:</p>
+<p>log2(Way_Size) &gt; log2(PAGE_SIZE) ,多出的位称为颜色位 (color bit)</p>
+<p>解决方法:</p>
+<p>1)    扩大页</p>
+<p>2)   每个有风险地方flush cache</p>
+<p>copy_from_user_page(…)</p>
+<p>{</p>
+<pre><code>   if (cpu_has_dc_aliases)
+
+          flush_cache_page(vma, vaddr, page_to_pfn(page))<span class="comment">;</span>
+
+   memcpy(dst, src, len)<span class="comment">;</span></code></pre>
+<p>}</p>
+<p>3)   Kmap_coherent</p>
+<pre><code>          void *vfrom = kmap_coherent(page, vaddr) + (vaddr &amp; ~PAGE_MASK)<span class="comment">;</span>
+
+          memcpy(dst, vfrom, len)<span class="comment">;</span>
+
+          kunmap_coherent()<span class="comment">;</span></code></pre>
+<p>Kmap_coherent原理</p>
+<p>1)    内核中使用copy_from_user_page等从用户空间读取数据(或写数据时)</p>
+<p>由于Vaddr是进程的TLB地址,因此内核不直接使用,而是转换为kseg0地址</p>
+<p>然后memcpy</p>
+<p>2)    kseg0地址颜色bit可能和vaddr不一样,有cache alias风险</p>
+<p>3)    所以要么在memcpy前先flush vaddr</p>
+<p>4)    要么分配一个颜色bit和vaddr一样的地址(kmap_coherent在kseg2分配了1个,并固定映射),memcpy完再释放</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/mips/" term="mips"/>
+    <category scheme="http://yoursite.com/tags/cache/" term="cache"/>
+    <category scheme="http://yoursite.com/categories/mips/" term="mips"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[uClibc体验]]></title>
+    <link href="http://yoursite.com/2013/07/08/2012-7-8-uclibc-test/"/>
+    <id>http://yoursite.com/2013/07/08/2012-7-8-uclibc-test/</id>
+    <published>2013-07-08T13:00:00.000Z</published>
+    <updated>2013-08-31T06:53:38.000Z</updated>
+    <content type="html"><![CDATA[<p>继上次用buildroot建立好toolchain后,测试能编译hello,hello-c++, hello-mt,开始编译整个项目所有应用.</p>
+<ol>
+<li>首先要编译QTE, 发现无论怎么配置,编译完库后,再编译应用总是提示有未定义符号,后来发现其实是之前应用开发人员在配置时候是直接修改的config.h文件,因此已经 无法用configure命令来还愿了,只要用笨的方法,configure之后再用差分工具对比所有Makefile和代码文件, 合并后编译通过</li>
+</ol>
+<p>2.编译hello qt上板运行通过</p>
+<p>3.简单qte小游戏运行通过</p>
+<p>4.多媒体播放软件无法运行, 只有提示segentation fault.</p>
+<p>决定跟踪一下</p>
+<p>考虑方式如下:</p>
+<p>1) ltrace</p>
+<p>2)strace</p>
+<p>3) coredump + gdb</p>
+<p>为了调试segmentation fault,决定使用ltrace</p>
+<ol>
+<li>先下了个ltrace-0.4版本,configure出错,提示需要libelf</li>
+</ol>
+<p>2.下载elfutils-0.131</p>
+<p>./configure –host=mipsel-linux –target=mipsel-linux</p>
+<p>make -c lib-elf</p>
+<p>提示需要libintl</p>
+<ol>
+<li>google,发现libintl在gettext里,下载gettext-0.17</li>
+</ol>
+<p>直接进入gettext-runtime目录</p>
+<p>./configure –with-included-gettext –prefix=/usr/local/crosstool/mipsel-linux –host=mipsel-linux</p>
+<p>make ;make install</p>
+<p>4.重新make elfutils-0.131</p>
+<p>cd lib-elf</p>
+<p>make;make install</p>
+<p>5.回到ltrace-0.4里,发现不支持mipsel</p>
+<p>下载最新的版本 ltrace-0.5_77</p>
+<p>下载补丁</p>
+<p><a href="http://svn.freetz.org/branches/stable-15/make/ltrace/patches/" target="_blank">http://svn.freetz.org/branches/stable-15/make/ltrace/patches/</a></p>
+<p>6.打补丁</p>
+<p>7.进入ltrace</p>
+<p>./autongen.sh</p>
+<p>8.</p>
+<p>./configure –host=mipsel-linux –target=mipsel-linux</p>
+<p>9.</p>
+<p>make</p>
+<p>结果发现编译到sysdepslinux-gnui386里了</p>
+<p>直接暴力修改Makefile</p>
+<p>ARCH  := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/<br>-e s/arm.*/arm/ -e s/sa110/arm/ -e s/ppc64/ppc/ -e s/s390x/s390/ -e s/mips/mipsel/)</p>
+<p>ARCH=mipsel</p>
+<p>10.编译出错，提示之前安装的libelf.h里的size_t没认出来,查了文件包含,未发现出错</p>
+<p>直接替换libelf.h里的size_t为unsigned int, offset64_t为long long</p>
+<p>最终编译出了ltrace</p>
+<p>11.用ltrace跟踪出错的qte程序,毫无提示,郁闷</p>
+<p>1.直接sourceforge下载4.5.15最新的</p>
+<p>2.CC=mipsel-linux-gcc ./configure –host=mipsel-linux</p>
+<p>3.make</p>
+<p>4.拷贝到小机, strace 出错应用,毫无提示</p>
+<p>5.strace 了一下hellqt,提示信息很完整</p>
+<p>6.郁闷,开始逐个对比出错和不出错的应用,发现不出错的都没用多线程</p>
+<p>7.这才想起没测试一下多线程的hello-mt, 上板一测,果然不通过</p>
+<p>8.goolge,发现mailist上有类似问题,回答是linuxthreads是有问题,不爽就用会linuxthreads.old</p>
+<p>9.重做uclibc with linuxthreads.old,整合到toolchain,重新编译, 果然应用能起来了</p>
+<p>10.还有几个多煤体处理程序仍然有异常,而且加了任何打印都没出来,郁闷,后续继续跟踪</p>
+<p>BTW: uClibc还有个问题,类似<strong>getpgid, </strong>memcpy等函数好象默认没有导出来,如果需要导出,应该需要修改,并重新buildroot,为了省事,直接将Ap里的__getpgid等替换成没有下划线的</p>
+<p>继上次调试后,仍有部分应用启动后没有任何提示,在main中加如打印也没反映,所以怀疑还是在库加载阶段就挂了.</p>
+<p>分析库依赖,比其他应用多了两个库,分别写ap测试,定位到某个库libabc.so, 仔细分析没啥特别的,分析库依赖</p>
+<p>发现libabc.so 依赖libpthread,   应用test以来libabc.so,但是应用Makefile没有指定-lpthread, 之前用glibc编译和运行是没问题的, 莫非uClibc有问题? 修改,编译,运行,果然,OK!</p>
+<p>虽然解决问题了,但仍未弄清区别,后面有时间还要仔细看看报</p>
+<p>用uClibc后,发现每次启动screenadjust就zombie了,而用glibc却没这种问题.  分析流程,在/etc/profile里启动了Manager, Manager在类构造函数里注册了SIGCHLD的处理函数(在函数里用waitpid等待), 然后用fork+execvp启动screenadjust,而当screenadjust结束后,Manager未收到SIGCHLD,因此没有回收进 程,造成zombie, 实验了一下两次fork的做法,还是没用,最后用system替代了fork+execvp, 就正常了,但原因还未仔细查找,不知道是否因为/etc/profile中启动属于init过程,因此有些问题</p>
+<p>经过试用uclibc总结如下:</p>
+<p>1.速度</p>
+<p>启动速度:</p>
+<p>无改善,因为只有busybox和uclibc相关,是静态编译,速度变化不大</p>
+<p>AP响应速度;</p>
+<p>AP都是QTE程序,基本没影响</p>
+<p>视频解码速度:</p>
+<p>虽然视频解码是c代码,但是使用c函数,基本就memcpy/memset等,以及str操作相关的,因此相比glibc稍微一点点快,可能是在加载库和映射地址时节省一点时间</p>
+<p>2.尺寸:</p>
+<p>C库由1.x M变成 几百k</p>
+<p>一些中间库小了30%~40%(大部分是c语言的) ,  QTE库基本无变化,  QTE的AP基本只少几k或者10K</p>
+<p>总共接近30M,可以少2~3M</p>
+<p>3.成熟度</p>
+<p>NPTL至今还是branch,没有release, linuxthreads还有BUG,只能用linuxthreads_old</p>
+<p>此外一些接口也没有,另外带<strong>的接口没有,例如</strong>getpid等. 其他接口没有用LTP回归测试.</p>
+<p>总结:<br>在速度没有明显变化的前提下,使用uClibc可以减少一些固件大小, 减少内存消耗(-1M左右), 但是由于接口的兼容性和稳定性和glibc还有差距,因此暂不替换当前使用</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/uclibc/" term="uclibc"/>
+    <category scheme="http://yoursite.com/categories/linux/" term="linux"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[buildroot+mips under cygwin]]></title>
+    <link href="http://yoursite.com/2013/07/07/2012-7-7-buildroot-cygwin/"/>
+    <id>http://yoursite.com/2013/07/07/2012-7-7-buildroot-cygwin/</id>
+    <published>2013-07-07T13:00:00.000Z</published>
+    <updated>2013-08-31T06:53:54.000Z</updated>
+    <content type="html"><![CDATA[<p>1.download buildroot,gcc,bintuils.uclibc linux-header</p>
+<p>2.upack buildroot</p>
+<p>3.mkdir /buildroot/dl</p>
+<p>4.put uclibc ,gcc,bintuils tarball in dl</p>
+<p>5.cd buildroot make menuconfig</p>
+<p>failed</p>
+<p>fixed as follow</p>
+<p>— buildroot/package/config/Makefile 2007-08-04 15:15:44.000000000 +0800<br>+++ buildroot-old/package/config/Makefile 2007-09-09 15:58:06.728702400 +0800<br>@@ -20,7 +20,7 @@<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $&lt; -o $@</p>
+<p>$(host-cmulti): %: $(host-cobjs) $(host-cshlib)<br>- $(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST<em>LOADLIBES) $() -o $@<br>+ $(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $() -lintl -lncurses -o $@</p>
+<p>$(host-cobjs): %.o: %.c<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) -c $&lt; -o $@</p>
+<p>— buildroot/toolchain/uClibc/uclibc.mk 2007-08-04 15:15:02.000000000 +0800<br>+++ buildroot-new/toolchain/uClibc/uclibc.mk 2007-10-22 09:49:39.721336200 +0800<br>@@ -347,14 +347,9 @@<br>fi;<br>fi;<br>endif<br>- # Build the host utils.  Need to add an install target…<br>- $(MAKE1) -C $(UCLIBC_DIR)/utils<br>-  PREFIX=$(STAGING_DIR)<br>-  HOSTCC=”$(HOSTCC)”<br>-  hostutils<br>- install -c $(UCLIBC_DIR)/utils/ldd.host $(STAGING_DIR)/usr/bin/ldd<br>+# install -c $(UCLIBC_DIR)/utils/ldd.host $(STAGING_DIR)/usr/bin/ldd<br>ln -sf ldd $(STAGING_DIR)/usr/bin/$(REAL_GNU_TARGET_NAME)-ldd<br>- install -c $(UCLIBC_DIR)/utils/ldconfig.host $(STAGING_DIR)/usr/bin/ldconfig<br>+# install -c $(UCLIBC_DIR)/utils/ldconfig.host $(STAGING_DIR)/usr/bin/ldconfig<br>ln -sf ldconfig $(STAGING_DIR)/usr/bin/$(REAL_GNU_TARGET_NAME)-ldconfig<br>ln -sf ldconfig $(STAGING_DIR)/usr/bin/$(GNU_TARGET_NAME)-ldconfig<br>touch -c $@</p>
+<ol>
+<li>buildroot</li>
+</ol>
+<p>make menuconfig</p>
+<p>note: not select locale,wchar support</p>
+<ol>
+<li><p>make</p>
+</li>
+<li><p>failed at binutils-2.15</p>
+</li>
+</ol>
+<p>patched</p>
+<p>— binutils-2.15/ld/ldmain.c 2008-04-02 16:26:19.893733000 +0800<br>+++ binutils-2.15-patch/ld/ldmain.c 2007-10-11 16:47:59.282360000 +0800<br>@@ -398,13 +398,14 @@<br>lex_string = NULL;<br>}<br>/<em> NG horrible hack, but it works and I haven’t the time to do this properly </em>/<br>+/*</p>
+<h1>ifdef bfd_set_link_info</h1>
+<p>bfd_set_link_info(&amp;link_info);</p>
+<h1>endif</h1>
+<h1>ifdef bfd_set_force_make_executable</h1>
+<p>bfd_set_force_make_executable(force_make_executable);</p>
+<h1>endif</h1>
+<p>-<br>+*/</p>
+<p>if (trace_file_tries)<br>{</p>
+<ol>
+<li>continue make</li>
+</ol>
+<p>failed at gcc</p>
+<p>add patch</p>
+<p>304-index_macro.patch</p>
+<p>302-c99-snprintf.patch</p>
+<p>9.make,failed at uClibc</p>
+<p>10.collect some patch total as follow</p>
+<p>diff -Nru uClibc-0.9.29/extra/config/Makefile uClibc-0.9.29-patch/extra/config/Makefile<br>— uClibc-0.9.29/extra/config/Makefile 2007-09-07 14:44:50.000000000 +0800<br>+++ uClibc-0.9.29-patch/extra/config/Makefile 2007-09-11 10:26:41.000000000 +0800<br>@@ -21,7 +21,7 @@<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $&lt; -o $@</p>
+<p>$(host-cmulti): %: $(host-cobjs) $(host-cshlib)<br>- $(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST<em>LOADLIBES) $() -lintl -o $@<br>+ $(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) $(HOST_LOADLIBES) $() -lintl -lncurses -o $@</p>
+<p>$(host-cobjs): %.o: %.c<br>$(HOSTCC) $(HOST<em>EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS</em>$@) -c $&lt; -o $@<br>diff -Nru uClibc-0.9.29/libc/string/mips/memcpy.S uClibc-0.9.29-patch/libc/string/mips/memcpy.S<br>— uClibc-0.9.29/libc/string/mips/memcpy.S 2006-11-05 03:48:12.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/string/mips/memcpy.S 2007-09-10 13:25:29.000000000 +0800<br>@@ -140,17 +140,17 @@<br>END (memcpy)</p>
+<h1>else /<em> !__mips64 </em>/</h1>
+<p>-<br>+#include <sys/asm.h></p>
+<h1>if <strong>BYTE_ORDER == </strong>BIG_ENDIAN</h1>
+<p>-#  define LWHI lwl  /<em> high part is left in big-endian </em>/<br>-#  define SWHI swl  /<em> high part is left in big-endian </em>/<br>-#  define LWLO lwr  /<em> low part is right in big-endian </em>/<br>-#  define SWLO swr  /<em> low part is right in big-endian </em>/<br>+#define LWHI lwl  /<em> high part is left in big-endian </em>/<br>+#define SWHI swl  /<em> high part is left in big-endian </em>/<br>+#define LWLO lwr  /<em> low part is right in big-endian </em>/<br>+#define SWLO swr  /<em> low part is right in big-endian </em>/</p>
+<h1>else</h1>
+<p>-#  define LWHI lwr  /<em> high part is right in little-endian </em>/<br>-#  define SWHI swr  /<em> high part is right in little-endian </em>/<br>-#  define LWLO lwl  /<em> low part is left in little-endian </em>/<br>-#  define SWLO swl  /<em> low part is left in little-endian </em>/<br>+#define LWHI lwr  /<em> high part is right in little-endian </em>/<br>+#define SWHI swr  /<em> high part is right in little-endian </em>/<br>+#define LWLO lwl  /<em> low part is left in little-endian </em>/<br>+#define SWLO swl  /<em> low part is left in little-endian </em>/</p>
+<h1>endif</h1>
+<p>ENTRY (memcpy)<br>diff -Nru uClibc-0.9.29/libc/string/mips/sysdep.h uClibc-0.9.29-patch/libc/string/mips/sysdep.h<br>— uClibc-0.9.29/libc/string/mips/sysdep.h 2006-01-14 08:58:03.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/string/mips/sysdep.h 2007-09-10 13:46:19.000000000 +0800<br>@@ -29,7 +29,7 @@<br>.globl name;<br>.align 2;<br>.ent name,0;<br>-  name##:<br>+  name:</p>
+<h1>undef END</h1>
+<h1>define END(function)</h1>
+<p>diff -Nru uClibc-0.9.29/libc/sysdeps/linux/common/mmap64.c uClibc-0.9.29-patch/libc/sysdeps/linux/common/mmap64.c<br>— uClibc-0.9.29/libc/sysdeps/linux/common/mmap64.c 2008-03-26 09:49:49.218842800 +0800<br>+++ uClibc-0.9.29-patch/libc/sysdeps/linux/common/mmap64.c 2007-09-10 12:02:02.000000000 +0800<br>@@ -63,7 +63,7 @@<br>fd,((__u_quad_t)offset &gt;&gt; MMAP2_PAGE_SHIFT));</p>
+<h1>else</h1>
+<p>return <strong>syscall_mmap2(addr, len, prot, flags,<br>-                          fd,((</strong>ulong_t)offset &gt;&gt; MMAP2_PAGE_SHIFT));<br>+                          fd,((unsigned long)offset &gt;&gt; MMAP2_PAGE_SHIFT));</p>
+<h1>endif</h1>
+<p>}</p>
+<p>diff -Nru uClibc-0.9.29/libc/sysdeps/linux/mips/crti.S uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crti.S<br>— uClibc-0.9.29/libc/sysdeps/linux/mips/crti.S 2006-11-05 03:53:15.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crti.S 2007-09-10 13:56:50.000000000 +0800<br>@@ -4,10 +4,8 @@<br>.section .mdebug.abi32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>@@ -23,13 +21,11 @@<br>.cprestore 16<br>sw $31,28($sp)<br>sw $28,24($sp)<br>-#APP</p>
+<p>.align 2<br>.end _init</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>@@ -45,7 +41,6 @@<br>.cprestore 16<br>sw $31,28($sp)<br>sw $28,24($sp)<br>-#APP<br>.align 2<br>.end _fini</p>
+<p>@@ -55,10 +50,8 @@<br>.section .mdebug.abiN32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _init<br>@@ -74,13 +67,11 @@<br>addu $28,$28,$25<br>addiu $28,$28,%lo(%neg(%gp_rel(_init)))<br>sd $31,8($sp)<br>-#APP</p>
+<p>.align 3<br>.end _init</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _fini<br>@@ -96,7 +87,6 @@<br>addu $28,$28,$25<br>addiu $28,$28,%lo(%neg(%gp_rel(_fini)))<br>sd $31,8($sp)<br>-#APP<br>.align 3<br>.end _fini</p>
+<p>@@ -106,11 +96,9 @@<br>.section .mdebug.abi64<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>@@ -127,13 +115,11 @@<br>addiu $1,$1,%lo(%neg(%gp_rel(_init)))<br>daddu $gp,$1,$25<br>.set at<br>-#APP</p>
+<p>.align 2<br>.end _init</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>@@ -150,7 +136,6 @@<br>addiu $1,$1,%lo(%neg(%gp_rel(_fini)))<br>daddu $gp,$1,$25<br>.set at<br>-#APP<br>.align 2<br>.end _fini</p>
+<p>diff -Nru uClibc-0.9.29/libc/sysdeps/linux/mips/crtn.S uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crtn.S<br>— uClibc-0.9.29/libc/sysdeps/linux/mips/crtn.S 2006-11-05 03:53:15.000000000 +0800<br>+++ uClibc-0.9.29-patch/libc/sysdeps/linux/mips/crtn.S 2007-09-10 14:04:02.000000000 +0800<br>@@ -4,17 +4,14 @@<br>.section .mdebug.abi32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>.type _init, @function<br>-#NO_APP<br>lw $31,28($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -23,17 +20,14 @@<br>.set reorder</p>
+<p>.end _init<br>-#APP</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>.type _fini, @function<br>-#NO_APP<br>lw $31,28($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -42,7 +36,6 @@<br>.set reorder</p>
+<p>.end _fini<br>-#APP</p>
+<p>.ident ”GCC: (GNU) 3.3.2″</p>
+<h1>elif _MIPS_SIM == _MIPS_SIM_NABI32</h1>
+<p>@@ -50,16 +43,13 @@<br>.section .mdebug.abiN32<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _init<br>.ent _init<br>.type _init, @function<br>-#NO_APP<br>ld $31,8($sp)<br>ld $28,0($sp)<br>.set noreorder<br>@@ -70,16 +60,13 @@<br>.set reorder</p>
+<p>.end _init<br>-#APP</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.align 3<br>.globl _fini<br>.ent _fini<br>.type _fini, @function<br>-#NO_APP<br>ld $31,8($sp)<br>ld $28,0($sp)<br>.set noreorder<br>@@ -90,7 +77,6 @@<br>.set reorder</p>
+<p>.end _fini<br>-#APP</p>
+<p>.ident ”GCC: (GNU) 3.4.3″</p>
+<h1>else /<em> N64 </em>/</h1>
+<p>@@ -98,19 +84,16 @@<br>.section .mdebug.abi64<br>.previous<br>.abicalls<br>-#APP</p>
+<p>.section .init<br>-#NO_APP<br>.align 2<br>.globl _init<br>.ent _init<br>.type _init, @function<br>-#NO_APP<br>ld $31,24($sp)<br>ld $28,16($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -119,18 +102,15 @@<br>.set reorder</p>
+<p>.end _init<br>-#APP</p>
+<p>.section .fini<br>-#NO_APP<br>.align 2<br>.globl _fini<br>.ent _fini<br>.type _fini, @function<br>-#NO_APP<br>ld $31,24($sp)<br>ld $28,16($sp)<br>- #nop<br>+<br>.set noreorder<br>.set nomacro<br>j $31<br>@@ -139,7 +119,6 @@<br>.set reorder</p>
+<p>.end _fini<br>-#APP</p>
+<p>.ident ”GCC: (GNU) 3.3.2″</p>
+<h1>endif /<em> N64 </em>/</h1>
+<p>diff -Nru uClibc-0.9.29/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h uClibc-0.9.29-patch/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h<br>— uClibc-0.9.29/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h 2006-01-31 13:05:15.000000000 +0800<br>+++ uClibc-0.9.29-patch/libpthread/linuxthreads/sysdeps/unix/sysv/linux/mips/sysdep-cancel.h 2007-09-10 14:41:48.000000000 +0800<br>@@ -17,7 +17,7 @@<br>Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA<br>02111-1307 USA.  */</p>
+<p>-#include <sysdep.h><br>+</p>
+<h1>ifndef <strong>ASSEMBLER</strong></h1>
+<h1>include <linuxthreads/internals.h></h1>
+<h1>endif</h1>
+<p>diff -Nru uClibc-0.9.29/utils/readelf.c uClibc-0.9.29-patch/utils/readelf.c<br>— uClibc-0.9.29/utils/readelf.c 2006-10-07 14:01:37.000000000 +0800<br>+++ uClibc-0.9.29-patch/utils/readelf.c 2007-09-10 16:09:34.000000000 +0800<br>@@ -24,7 +24,7 @@</p>
+<h1>include <sys/types.h></h1>
+<h1>include “bswap.h”</h1>
+<p>-#include “link.h”<br>+#include “../include/link.h”<br>/<em> makefile will include elf.h for us </em>/</p>
+<p>int byteswap;</p>
+<ol>
+<li>test build</li>
+</ol>
+<p>hello in c</p>
+<p>hello in c++</p>
+<p>hello with pthread</p>
+<p>build with shared libc, and -static</p>
+<p>you will find some error at “<em>*</em>.os”</p>
+<p>cd uClibc-xxx; rm the “<em>*.os” then make; and cp -a lib/</em> to toolchain lib</p>
+<p>11.test again</p>
+<p>failed at link hello-thread static</p>
+<p>in uClibc-*/libpthread/linuxthreadsMakefile.in, i add a libc-cancellation.o</p>
+<p>i am not sure it correct, but it workes</p>
+<p>libc-static-y += $(libpthread_OUT)/libc_pthread_init.o $(libpthread_OUT)/libc-cancellation.o</p>
+<h2>12.OK</h2>
+]]></content>
+    <category scheme="http://yoursite.com/tags/buildroot/" term="buildroot"/>
+    <category scheme="http://yoursite.com/tags/cygwin/" term="cygwin"/>
+    <category scheme="http://yoursite.com/categories/mips/" term="mips"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[porting oprofile on mips board]]></title>
+    <link href="http://yoursite.com/2013/07/06/2012-7-6-mips-oprofile-port/"/>
+    <id>http://yoursite.com/2013/07/06/2012-7-6-mips-oprofile-port/</id>
+    <published>2013-07-06T13:00:00.000Z</published>
+    <updated>2013-08-31T06:54:16.000Z</updated>
+    <content type="html"><![CDATA[<p>一直想把oprofile在板子上跑起来，一直没时间来做，最近有空，就来做看看<br>1.Google<br>找到有用资源<br>1） comcat的oprofile补丁，基本全齐了，虽然是for godson的<br>a) 照补丁添加kernel里面的内容，也就是添加个c文件，另外注意就是cpu_type，由于我们的IC design人员没改，所以prid读出来还是CPU_4KEC,所以只能丑陋地加了个#ifdef SOC_XXX<br>case CPU_4KEC:<br>…..</p>
+<p>另外我们的performance counter不是用的cp0里的，4kec没有，只有24k有，所以用的外部的SRAM寄存器，具体实现原理，IC那块不懂，应该是比cp0的有误差。 performance counter有几个不爽，一是两个counter居然所有事件是一模一样的，真是浪费，二是居然没有bit位区分 user, kernel,只有exl,erl位，虽然也可以利用exl和erl来作为kernel态的判断，但由于linux还用了其他另外一种方式区分内核态，所 以不准</p>
+<p>b) 用户态补丁，依葫芦画瓢</p>
+<p>2.编译<br>内核 pass<br>oprofile不过<br>郁闷，继续Google，找到资源<br>《OProfile交叉编译》和 《OProfile交叉编译续》<br>原来差popt和bfd,liberty<br>下载popt交叉编译,pass<br>下载binutils交叉编译，出错，整半天，不成，怒，用debian直接下了个binutils的.deb解开，再编译oprofile OK!</p>
+<p>3.运行<br>1） 怎么老打warning，说mount /dev/oprofile busy<br>打开opcontrol看，就是个脚本，原来去查/etc/mtab了，懒得重新编译busybox,将它修改成了/proc/mounts</p>
+<p>2) go on, 发现profiled不起来，检查在opcontrol里<br>verify_counters返回了<br>返回原因是$OPHELP –check-event $OPHELP_ARGS -callgrach ….命令返回出错就退出了，整不明白，注释掉，应该影响不大</p>
+<p>3) go on， 可以了，不过又发现怎么opcontrol –shutdown不掉啊<br>打开opcontrol，原来用了kill -s 0来判断进程，改成kill -0</p>
+<h2>大功告成！</h2>
+]]></content>
+    <category scheme="http://yoursite.com/tags/mips/" term="mips"/>
+    <category scheme="http://yoursite.com/tags/oprofie/" term="oprofie"/>
+    <category scheme="http://yoursite.com/categories/mips/" term="mips"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[linux内核启动时间简单优化]]></title>
+    <link href="http://yoursite.com/2013/07/05/2012-7-5-kernel-boot-time-opt/"/>
+    <id>http://yoursite.com/2013/07/05/2012-7-5-kernel-boot-time-opt/</id>
+    <published>2013-07-05T13:00:00.000Z</published>
+    <updated>2013-08-31T06:54:36.000Z</updated>
+    <content type="html"><![CDATA[<p>之前针对linux启动时间按照celinux上的措施优化了一下，以下是度量数据（和具体硬件相关可能有出入)</p>
+<p>Kernel-&gt;initrd</p>
+<p>3950mS</p>
+<p>Printk打印</p>
+<p>在bootldr里面指定quiet启动</p>
+<p>-920mS</p>
+<p>Loops_per_jiffies</p>
+<p>计算</p>
+<p>在bootldr里面指定lpj=</p>
+<p>-230mS</p>
+<p>pty_init</p>
+<p>不编译pty支持到内核里面</p>
+<p>-850mS</p>
+<p>ramdisk_initrd</p>
+<p>替换为</p>
+<p>cpio-initrd</p>
+<p>-660mS</p>
+<p>Initrd解压</p>
+<p>使用不压缩的initrd</p>
+<p>-880mS</p>
+<p>Ramdisk支持个数16</p>
+<p>缩小为4个</p>
+<p>-40mS</p>
+<p>小计</p>
+<p>3950mS</p>
+<p>-3580mS</p>
+<hr>
+]]></content>
+    <category scheme="http://yoursite.com/tags/boot/" term="boot"/>
+    <category scheme="http://yoursite.com/tags/kernel/" term="kernel"/>
+    <category scheme="http://yoursite.com/categories/linux/" term="linux"/>
+  </entry>
+  <entry>
+    <title type="html"><![CDATA[Uboot Mips Port]]></title>
+    <link href="http://yoursite.com/2013/07/04/2012-7-4-uboot-mips-port/"/>
+    <id>http://yoursite.com/2013/07/04/2012-7-4-uboot-mips-port/</id>
+    <published>2013-07-04T13:00:00.000Z</published>
+    <updated>2013-08-31T06:54:50.000Z</updated>
+    <content type="html"><![CDATA[<p><strong>1.    引言</strong></p>
+<p>文章是2年前移植u-boot时候分析的,u-boot方面文章比较多,但是mips方面的稍微少一点,因此贴上来就当资料搜集贴吧.<br>(Note: 图片上传后和原图有些出入,不知道什么原因,不过总体框图还是正确的)</p>
+<p><strong>1.1.    参考资料</strong></p>
+<p>詹荣开 <Bootloader技术内幕><br>原作者未考证  <au1500(mips)及yamon启动过程></p>
+<p><strong>2.    需求分析</strong></p>
+<p>Bootloader 在嵌入式系统中一般起硬件初始化和内核引导的作用,在产品中使用的Bootloader只要保证基本的功能和引导速度即可, 而作为开发使用的Bootloader,要求能提供灵活的配置方式和调试手段,一般选择已有的开源软件作为移植,下面主要分析Bootloader移植的 需求<br><strong>2.1.    基本功能需求</strong></p>
+<p>基本功能包括:<br>1. 硬件初始化:<br>根据具体的硬件环境,初始化必要的寄存器和外设<br>2. 内核引导<br>从存储介质中读取内核映象, 并引导<br>3. 代码下载<br>提供一种或几种机制能从主机直接下载文件到SDRAM中<br>2.2.    扩展功能需求<br>扩展功能主要是为了提供调试手段的多样化和便利化做的一些工作,包括:<br>1.    环境变量的保存:<br>提供一种能将用户定制的一些参数和脚本保存的机制;<br>2.    文件写入存储介质:<br>提供将SDRAM中文件写入存储介质的功能;<br>3.    USB调试手段:<br>提供使用USB作为控制终端和下载方式的调试开发功能;<br>4.    文件系统解析:<br>提供文件系统解析功能,使Bootloader能从存储介质的文件系统目录里读取文件。</p>
+<p><strong>3.    原理分析</strong></p>
+<p><strong>3.1.    Bootloader原理分析</strong></p>
+<p>(1)    Boot Loader简介<br>Bootloader就是在操作系统内核运行之前运行的一段小程序。通过这段小程序，我们可以初始化硬件设备、建立内存空间的映射图，从而将系统的软硬件环境带到一个合适的状态，以便为最终调用操作系统内核准备好正确的环境。</p>
+<p>(2)    Boot Loader的操作模式(Operation Mode)<br>大多数 Boot Loader 都包含两种不同的操作模式：“启动加载”模式和“下载”模式，这种区别仅对于开发人员才有意义。但从最终用户的角度看，Boot Loader 的作用就是用来加载操作系统，而并不存在所谓的启动加载模式与下载工作模式的区别。<br>启 动加载（Boot loading）模式：这种模式也称为“自主”（Autonomous）模式。也即 Boot Loader 从目标机上的某个固态存储设备上将操作系统加载到 RAM 中运行，整个过程并没有用户的介入。这种模式是 Boot Loader 的正常工作模式，因此在嵌入式产品发布的时侯，Boot Loader 显然必须工作在这种模式下。<br>下载（Downloading）模式：在这种 模式下，目标机上的 Boot Loader 将通过串口连接或网络连接等通信手段从主机（Host）下载文件，比如：下载内核映像和根文件系统映像等。从主机下载的文件通常首先被 Boot Loader 保存到目标机的 RAM 中，然后再被 Boot Loader 写到目标机上的FLASH 类固态存储设备中。</p>
+<p>(3)    Bootloader的两段式启动<br>由 于 Boot Loader 的实现依赖于 CPU 的体系结构，因此大多数 Boot Loader 都分为 stage1 和 stage2 两大部分。依赖于 CPU 体系结构的代码，比如设备初始化代码等，通常都放在 stage1 中，而且通常都用汇编语言来实现，以达到短小精悍的目的。而 stage2 则通常用C语言来实现，这样可以实现给复杂的功能，而且代码会具有更好的可读性和可移植性。<br>Boot Loader 的 stage1 通常包括以下步骤(以执行的先后顺序)：</p>
+<pre><code>硬件设备初始化。
+
+为加载 Boot Loader 的 stage2 准备 RAM 空间。
+
+拷贝 Boot Loader 的 stage2 到 RAM 空间中。
+
+设置好堆栈。
+
+跳转到 stage2 的 C 入口点。</code></pre>
+<p>Boot Loader 的 stage2 通常包括以下步骤(以执行的先后顺序)：</p>
+<pre><code>初始化本阶段要使用到的硬件设备。
+
+检测系统内存映射(memory <span class="keyword">map</span>)。
+
+将 kernel 映像和根文件系统映像从 flash 上读到 RAM 空间中。
+
+为内核设置启动参数。
+
+调用内核。</code></pre>
+<p>(4)    Bootloader结构<br>Bootloader的组成模块结构如下图所示:<br>Shell控制台(通过串口输出和接收命令来控制)<br>上层功能(包括monitor功能,和最基本的启动linux kernel功能)<br>底层驱动<br>(主要两种:一种是读写存储介质&lt;硬盘,flash驱动等&gt;,一种是与主机通信&lt;网卡和串口&gt;)<br>架构相关代码(架构相关的初始化代码)</p>
+<p><strong>3.2.    U-boot与Yamon比较</strong></p>
+<p>目前支持MIPS架构的Bootloader主要有U-Boot与Yamon两种,下面我们来分析比较一下<br>,如下表所示:<br>特点和功能<br>U-boot<br>Yamon<br>支持的cpu和board</p>
+<ol>
+<li>支持种类繁多，包括arm的各个系列,ppc,mips</li>
+<li>mips的支持较差，目前支持au1100,au1500系列，4kec的需要自己移植<br>(工作量主要在起始代码的初始化部分，包括cahe和中断的初始化)</li>
+</ol>
+<p>1.基本上对mips系列的都支持,包括SEADTM ,SEAD-2TM MaltaTM, AltasTM</p>
+<p>2.基本上属于mips系列专用，未听说过将Yamon应用去其他架构的实例（可行性低，相当于重写）</p>
+<p>Image大小<br>通常200k~300k左右，可对一些功能进行裁减至100k下<br>一般最小500k<br>主要包括初始代码(start code)+大端image+小端image,通过修改，可裁减掉一种endian的image,大概减少200k左右<br>最小化裁减：可能接近100k</p>
+<p>代码结构</p>
+<p>1． 采用了将平台无关和平台相关的代码分开处理的方法<br>内核启动方式<br>串口，tftp，本地, DHCP<br>串口，tftp，本地<br>内核支持格式<br>Vmlinux,或gzip压缩，或bzip2压缩，或zImage<br>只支持原始的vmlinux,网上有人也尝试修改过yamon来支持zImage(amd的1500开发板提供了支持zImage的补丁)<br>调试功能<br>只有简单的Go<br>功能强大，支持gdb，还有异常处理等<br>可移植性<br>对于移植到新的板子或cpu，需要修改的目录结构较清晰，容易添加<br>因为yamon没有采用大量的ifdef来控制选项，是通过yamon启动后自动detect到cpu和board的类型的，所以修改稍微麻烦<br>可裁减性<br>结构清晰，易于裁减<br>结构也较清晰，但由于存在较多yamon自动检测的部分，裁减性稍差<br>可扩展性<br>易于扩展，对于扩展shell命令和增加Driver较为容易<br>对shell command和Driver的支持也较易添加<br>总结<br>U-boot是一个较为通用的Bootloader,主要目的是启动内核，同时给开发者提供较为方便的移植性，U-Boot的扩展功能什么丰富;<br>Yamon(Yet Another Monitor)是主要针对MIPS系列cpu的一个功能强大的Rom monitor程序,Yamon的扩展功能较为单一;</p>
+<p><strong>结论</strong></p>
+<p>使用U-Boot作为开发用Bootloader</p>
+<p>下面是Yamon的目录分析和启动流程图(主要根据参考资料里的总结)</p>
+<p><strong>Yamon目录结构</strong><br><img src="http://farm4.staticflickr.com/3695/9412961770_a8b1fa2b84_o.png" alt=""></p>
+<p><strong>Yamon启动流程</strong><br><img src="http://farm8.staticflickr.com/7383/9410198953_d327fd4871_o.jpg" alt=""></p>
+<p><strong>3.3.    U-Boot目录结构</strong></p>
+<p>根据上面的比较,我们简单分析一下U-Boot的代码目录结构,描述其代码主要功能,如下图所示:</p>
+<p><img src="http://farm4.staticflickr.com/3695/9412961770_a8b1fa2b84_o.png" alt=""></p>
+<p><strong>4.    设计移植</strong></p>
+<p><strong>4.1.    启动流程</strong></p>
+<p>下面我们详细分析U-Boot的启动流程,并指出针对具体的硬件,启动流程中需要修改的代码,如下图所示:<br><img src="http://farm4.staticflickr.com/3812/9412967040_1f1db5d616_o.jpg" alt=""></p>
+<p><strong>4.2.    移植分析</strong></p>
+<p>根据上述分析,我们代码移植也包括三方面:<br>(1)    片级移植:<br>片级移植主要是针对具体cpu的初始化代码的修改,针对我们的mips平台,主要包括: a) 通用寄存器的初始化<br>b) CP0的初始化(status, config, watch, count, compare, etc.)<br>c) Watchdog初始化<br>d) Cache初始化<br>e) TLB初始化<br>(2)    板级移植<br>a)    串口驱动<br>b)    flash读写驱动(nor, nand)<br>c)    HD读写驱动<br>d)    网卡驱动<br>(3)    功能层扩展<br>可根据需求添加新功能或裁减优化,包括调试功能,启动功能,下载功能</p>
+<p><strong>4.3.    修改代码</strong></p>
+<p>主要修改的代码说明如下:<br>(1)    Makefile 添加开发板的编译支持;<br>(2)    Include/configs/myboard.h 开发板的定义,启动参数等;<br>(3)    cpu/mips/start.S 修改初始化代码和入口;<br>(4)    board/myboard/flash.c 对应的Nor Flash驱动;<br>(5)    board/myboard/myboard.c 对应的板级初始化代码;<br>(6)    board/myboard/lowlevel_init.S 初始化硬件的汇编代码;<br>(7)    board/myboard/serial.c 串口驱动;<br>(8)    drivers/rtl8019.h drivers/rtl8019.c 修改RTL8019驱动的寄存器定义等。</p>
+<p><strong>5.    扩展功能</strong></p>
+<p>以下的功能是根据以后开发调试的不同需求,有可能需要添加的功能</p>
+<p><strong>5.1.    Logo功能</strong></p>
+<p>LOGO功能在产品级使用中需要,在一般开发中可不使用,目前使用简单的写RGB数据来实现LOGO功能。</p>
+<p><strong>5.2.    NOR Flash驱动</strong></p>
+<p>NOR Flash的读取是不需要驱动的,如果需要保存数据到NOR flash,或通过bootloader提供烧写功能,就必须实现NOR Flash驱动, 由于最终产品不会有NOR, 且目前开发板NOR已有烧写工具,因此未实现NOR Flash驱动。</p>
+<p><strong>5.3.    Nand Flash驱动</strong><br>在后期的开发板,将使用Nand Flash作为存储介质,如果需要使用U-boot作为开发用Bootloader,需要将Nand Flash驱动移植到U-Boot中。</p>
+<p><strong>5.4.    ATA 驱动</strong></p>
+<p>在后期的开发板,如果使用硬盘作为存储介质,如果需要使用U-boot作为开发用Bootloader,需要将ATA驱动移植到U-Boot中。</p>
+<p><strong>5.5.    文件系统解析</strong></p>
+<p>目前U-Boot支持ext2, FAT等,如果需要支持其他文件系统,需要移植对应的代码。</p>
+]]></content>
+    <category scheme="http://yoursite.com/tags/uboot/" term="uboot"/>
+    <category scheme="http://yoursite.com/tags/mips/" term="mips"/>
+    <category scheme="http://yoursite.com/categories/mips/" term="mips"/>
+  </entry>
+</feed>

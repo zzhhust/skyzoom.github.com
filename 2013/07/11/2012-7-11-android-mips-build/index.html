@@ -1,0 +1,277 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>MIPS android 编译总结 | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="参考文档1.1 Obtaining MIPS Android Source Code    (http://www.mipsandroid.com/documents/show/1)1.2 Compiling Android for MIPS (http://www.awakecoding.com/">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="MIPS android 编译总结"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-11T13:00:00.000Z"><a href="/2013/07/11/2012-7-11-android-mips-build/">7月 11 2013</a></time>
+      
+      
+  
+    <h1 class="title">MIPS android 编译总结</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <ol>
+<li>参考文档<br>1.1 Obtaining MIPS Android Source Code    (<a href="http://www.mipsandroid.com/documents/show/1" target="_blank">http://www.mipsandroid.com/documents/show/1</a>)<br>1.2 Compiling Android for MIPS (<a href="http://www.awakecoding.com/index.php?option=com_content&amp;view=article&amp;id=21:compiling-android-for-mips" target="_blank">http://www.awakecoding.com/index.php?option=com_content&amp;view=article&amp;id=21:compiling-android-for-mips</a>)<br>1.3 移植Android到MIPS平台（续） (<a href="http://my.unix-center.net/~Simon_fu/?p=557" target="_blank">http://my.unix-center.net/~Simon_fu/?p=557</a>) </li>
+<li><p>环境准备<br>2.1 安装ubuntu(使用virtulbox)<br>2.2 安装其他需要工具<br>sudo apt-get install gcc build-essential git-core libreadline-dev zip curl wget valgrind python eclipse ecj flex bison gperf libsdl-dev libwxgtk2.6-dev libgmp3-dev libsds-dev clearsilver-dev libclearsilver-perl python-clearsilver gcc-multilib g++-multilib<br>2.3 安装java jdk<br>sudo apt-get sun-java5-jdk<br>sudo update-alternatives –config java  (选择刚安装完的JDK目录)<br>sudo update-alternatives –config javac<br>sudo update-alternatives –config javadoc<br>2.4 安装mips-4.3 toolchain<br>此步骤可省略，使用android自带的prebuilt toolchain即可</p>
+</li>
+<li><p>源码下载</p>
+<pre><code> <span class="variable">$ </span>curl <span class="symbol">http:</span>/<span class="regexp">/android.git.kernel.org/repo</span> &gt;~<span class="regexp">/bin/repo</span>
+ <span class="variable">$ </span>chmod a+x ~<span class="regexp">/bin/repo</span>
+ <span class="variable">$ </span>mkdir mipsandroid
+ <span class="variable">$ </span>cd mipsandroid
+ <span class="variable">$ </span>repo init -u <span class="symbol">git:</span>/<span class="regexp">/public.mipsandroid.com/mips</span><span class="regexp">/platform/manifest</span>.git -b mips-eclair
+ <span class="variable">$ </span>repo sync</code></pre>
+</li>
+<li><p>编译<br>4.1 准备<br>在mipsandroid下添加env.sh如下</p>
+<pre><code> export <span class="constant">TOP</span>=’pwd’
+ export <span class="constant">J2RE_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun/jre
+ export <span class="constant">JAVA_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun
+ export <span class="constant">ANDROID_JAVA_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun
+ source build/envsetup.sh
+ export <span class="constant">USE_CCACHE</span>=<span class="number">1</span>
+ export <span class="constant">TARGET_ARCH_VERSION</span>=mips32r2
+ export <span class="constant">TARGET_ARCH</span>=mips
+ export <span class="constant">ANDROID_PRODUCT_OUT</span>=~<span class="regexp">/android/mipsandroid</span><span class="regexp">/out/target</span><span class="regexp">/product/generic</span>
+ export <span class="constant">PATH</span>=<span class="variable">$PATH</span><span class="symbol">:~/android/mipsandroid/out/host/linux-x86/bin/</span></code></pre>
+</li>
+</ol>
+<p>4.2 步骤<br>source env.sh<br>make<br>4.3 此时已生成emulator和对应的system.img ramdisk.img userdata.img(kernel-qemu使用prebuilt的）</p>
+<p>4.3问题总结<br>之前由于PRODUCT指定不对，造成编译出的init使用了hard float point的libc，重新make clean;make解决</p>
+<p>5.编译SDK<br>5.1 执行<br>在4步骤完成后<br>make sdk</p>
+<p>5.2 问题总结<br>5.2.1 提示crtbegin_so.S找不到<br>修改bionic/libc/Android.mk如下，注释掉</p>
+<pre><code>#ifeq ($(TARGET_ARCH),mips)
+# we only need begin_so/end_so <span class="keyword">for</span> mips, since it needs an appropriate .init
+# section <span class="keyword">in</span> the shared library <span class="keyword">with</span> a <span class="function"><span class="keyword">function</span> <span class="title">to</span> <span class="title">call</span> <span class="title">all</span> <span class="title">the</span> <span class="title">entries</span> <span class="title">in</span>
+# .<span class="title">ctors</span> <span class="title">section</span>.
+#<span class="title">GEN</span> := <span class="title">$</span><span class="params">(TARGET_OUT_STATIC_LIBRARIES)</span>/<span class="title">crtbegin_so</span>.<span class="title">o</span>
+#<span class="title">$</span><span class="params">(GEN)</span>: <span class="title">$</span><span class="params">(LOCAL_PATH)</span>/<span class="title">arch</span>-<span class="title">$</span><span class="params">(TARGET_ARCH)</span>/<span class="title">bionic</span>/<span class="title">crtbegin_so</span>.<span class="title">S</span>
+#    @<span class="title">mkdir</span> -<span class="title">p</span> <span class="title">$</span><span class="params">(dir $@)</span>
+#    <span class="title">$</span><span class="params">(TARGET_CC)</span> <span class="title">$</span><span class="params">(libc_crt_target_cflags)</span> -<span class="title">o</span> <span class="title">$</span>@ -<span class="title">c</span> <span class="title">$</span>&lt;
+#<span class="title">ALL_GENERATED_SOURCES</span> += <span class="title">$</span><span class="params">(GEN)</span>
+#
+#<span class="title">GEN</span> := <span class="title">$</span><span class="params">(TARGET_OUT_STATIC_LIBRARIES)</span>/<span class="title">crtend_so</span>.<span class="title">o</span>
+#<span class="title">$</span><span class="params">(GEN)</span>: <span class="title">$</span><span class="params">(LOCAL_PATH)</span>/<span class="title">arch</span>-<span class="title">$</span><span class="params">(TARGET_ARCH)</span>/<span class="title">bionic</span>/<span class="title">crtend_so</span>.<span class="title">S</span>
+#    @<span class="title">mkdir</span> -<span class="title">p</span> <span class="title">$</span><span class="params">(dir $@)</span>
+#    <span class="title">$</span><span class="params">(TARGET_CC)</span> <span class="title">$</span><span class="params">(libc_crt_target_cflags)</span> -<span class="title">o</span> <span class="title">$</span>@ -<span class="title">c</span> <span class="title">$</span>&lt;
+#<span class="title">ALL_GENERATED_SOURCES</span> += <span class="title">$</span><span class="params">(GEN)</span>
+#<span class="title">endif</span> # <span class="title">TARGET_ARCH</span> == <span class="title">mips</span></code></pre>
+<p>5.2.2 生成的linux sdk使用不正常，发现kernel-qemu拷贝的是arm的，将其替换即可</p>
+<p>6.编译windows SDK<br>6.1 步骤<br>1)将mipsandroid拷贝到cygwin里<br>2)windows安装java jdk<br>3)修改env.sh</p>
+<pre><code>export <span class="constant">TOP</span>=’pwd’
+export <span class="constant">J2RE_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>/jre
+export <span class="constant">JAVA_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>
+export <span class="constant">ANDROID_JAVA_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>
+source build/envsetup.sh
+export <span class="constant">TARGET_ARCH_VERSION</span>=mips32r2
+export <span class="constant">TARGET_ARCH</span>=mips
+export <span class="constant">ANDROID_PRODUCT_OUT</span>=~<span class="regexp">/android/mipsandroid</span><span class="regexp">/out/target</span><span class="regexp">/product/generic</span>
+export <span class="constant">PATH</span>=<span class="variable">$PATH</span><span class="symbol">:/cygdrive/c/Java/jdk1</span>.<span class="number">5.0_20</span>/bin</code></pre>
+<p>4)修改make_windows_sdk.sh，增加acp编译（android 2.2)，修改cygwin目录，删除adb/fastboot编译（android 2.2)，如下</p>
+<pre><code>a) CYG_MGWZ_PATH=/cygdrive/c/cygwin/bin/mgwz.dll                                                           -&gt;  CYG_MGWZ_PATH=/cygdrive/e/cygwin/bin/mgwz.dll
+b) SDK_NUMBER=`echo $filename | sed -n ‘s/^.*_([^_./]+)_[^_.]*..*$/<span class="number">1</span>/p’` -&gt;  SDK_NUMBER=<span class="number">2.2</span>
+c)    aapt adb aidl
+etc1tool
+prebuilt
+dexdump dmtracedump
+fastboot
+-&gt;
+acp aapt aidl
+etc1tool
+prebuilt
+dexdump dmtracedump
+d) cp -v out/host/windows-x86/bin/*.{exe,dll} “$TOOLS”/ -&gt;  cp -v out/host/windows-x86/bin/*.exe “$TOOLS”/
+e)
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v $CYG_MGWZ_PATH “$TOOLS”/
+-&gt;
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v $CYG_MGWZ_PATH “$TOOLS”/
+cp -v /cygdrive/e/cygwin/bin/cygz.dll “$TOOLS”/
+cp -v /cygdrive/e/cygwin/bin/cygwin1.dll “$TOOLS”/
+f)
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v “$TOOLS”/mgwz.dll “$PLATFORM_TOOLS”/
+-&gt;
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v “$TOOLS”/mgwz.dll “$PLATFORM_TOOLS”/
+cp -v “$TOOLS”/cygz.dll “$PLATFORM_TOOLS”/
+cp -v “$TOOLS”/cygwin1.dll “$PLATFORM_TOOLS”/</code></pre>
+<p>5)修改external/sqlite/dist/shell.c</p>
+<pre><code>#if defined(HAVE_READLINE) &amp;&amp; HAVE_READLINE==1  -&gt; #if 0
+# include <span class="tag">&lt;<span class="title">readline</span>/<span class="attribute">readline.h</span>&gt;</span>
+# include <span class="tag">&lt;<span class="title">readline</span>/<span class="attribute">history.h</span>&gt;</span></code></pre>
+<p>6.2 安装使用<br>kernel-qemu还是arm的，替换成mips的</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/mips/">mips</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/mips/">mips</a>, <a href="/tags/android/">android</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

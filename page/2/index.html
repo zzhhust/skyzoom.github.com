@@ -1,0 +1,614 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>第 2 页 | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-08-16T13:00:00.000Z"><a href="/2013/08/16/2013-8-30-adb-ticks/">8月 16 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/08/16/2013-8-30-adb-ticks/">关于adb使用的一些技巧</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>关于adb使用的一些技巧  </p>
+<pre><code><span class="number">1</span>.判断连接启动
+    <span class="keyword">if</span> echo <span class="variable">$(</span>adb get-<span class="keyword">state</span>)|<span class="keyword">grep</span> <span class="string">"device"</span>;then
+        <span class="keyword">if</span> adb shell getprop|<span class="keyword">grep</span> <span class="string">"sys.boot_completed"</span> &gt;<span class="regexp">/dev/null</span>;then
+                    echo Device connected
+                    echo Device Boot Completed
+                    <span class="keyword">break</span>
+        <span class="keyword">else</span>
+                    echo Device Boot Not Completed
+                    <span class="keyword">sleep</span> <span class="number">3</span>
+        fi
+    <span class="keyword">else</span>
+
+
+<span class="number">2</span>.查询包安装
+adb shell pm list packages|<span class="keyword">grep</span> <span class="string">"<span class="variable">$1</span>"</span>
+<span class="number">3</span>.杀掉应用
+adb shell am <span class="keyword">kill</span>-all
+am force-stop com.android.browser
+
+<span class="number">4</span>.启动应用
+网页
+adb shell <span class="string">"am start -a android.intent.action.VIEW -d file:///data/test/index.html"</span>   
+音乐
+adb shell <span class="string">"am start -n com.android.music/.MediaPlaybackActivity -d /sdcard/Audio/1.mp3"</span>    
+benchmark
+adb shell <span class="string">"am start ca.primatelabs.geekbench2/.HomeActivity"</span>
+
+<span class="number">5</span>.等待应用
+Music
+<span class="keyword">while</span> [ <span class="number">1</span> = <span class="number">1</span> ]
+<span class="keyword">do</span>    
+    last_write=<span class="variable">$(</span>adb shell dumpsys media.audio_flinger|<span class="keyword">grep</span> <span class="keyword">last</span>|awk <span class="string">'{print $5}'</span>)
+    <span class="keyword">if</span> [ <span class="variable">$last_write</span> -<span class="keyword">gt</span> <span class="number">2000</span> ];then
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>
+        <span class="keyword">sleep</span> <span class="number">2</span>
+    fi
+done    
+
+benchmark
+<span class="keyword">while</span> [ <span class="number">1</span> = <span class="number">1</span> ]
+<span class="keyword">do</span> 
+    <span class="keyword">if</span> dumpsys activity|<span class="keyword">grep</span> <span class="string">"ca.primatelabs.geekbench2/.DocumentActivity"</span>;then
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>       
+        <span class="keyword">sleep</span> <span class="number">1</span>
+        <span class="keyword">continue</span>
+    fi
+done    
+<span class="number">6</span>.截图
+adb shell screencap -p /sdcard/<span class="number">1</span>.png    
+
+<span class="number">7</span>.按键控制
+adb shell input keyevent <span class="number">19</span>
+<span class="number">19</span>:up
+<span class="number">20</span>:down
+<span class="number">21</span>:left
+<span class="number">22</span>:right
+<span class="number">66</span>:Enter
+<span class="number">4</span>: ESC
+<span class="number">26</span>: POWER
+<span class="number">82</span>:MENU
+
+<span class="number">8</span>.自动解锁
+<span class="keyword">if</span> adb shell dumpsys power|<span class="keyword">grep</span> mWakefulness|<span class="keyword">grep</span> Asleep;then
+    adb shell input keyevent <span class="number">26</span> <span class="comment">#POWER       </span>
+fi
+<span class="keyword">sleep</span> <span class="number">1</span>
+adb shell input keyevent <span class="number">82</span> <span class="comment">#MENU   </span></code></pre>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-08-15T13:00:00.000Z"><a href="/2013/08/15/2013-8-15-vim/">8月 15 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/08/15/2013-8-15-vim/">VIM操作速记</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>VIM 操作备忘<br>1）移动</p>
+<pre><code><span class="title">a</span>) 光标移动：
+四个方向
+   k
+ h <span class="number">0</span> l
+   j
+<span class="title">b</span>) 翻页   
+<span class="title">ctrl</span>+f, ctrl+b                 向下翻页，向上翻页
+<span class="title">ctrl</span>+d, ctrl+u                 向下半翻页，向上半翻页
+
+<span class="title">c</span>)其他
+$    移动行尾
+<span class="number">0</span>    移动行首
+<span class="title">w</span>    移动下一个词
+<span class="title">b</span>    移动到上一个词
+<span class="title">gg</span>   跳到文档的开始处
+<span class="type">G</span>    跳到文档的末尾</code></pre>
+<p>2)代码整理</p>
+<p>   a)删除行尾空格</p>
+<pre><code>% <span class="regexp">s/\s\+$//g</span> </code></pre>
+<p>   b)代码格式化<br>        gg</p>
+<pre><code>    <span class="keyword">Shift</span>+v
+
+    <span class="keyword">Shift</span>+g
+
+    =</code></pre>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-08-08T13:00:00.000Z"><a href="/2013/08/08/2013-8-8-pscpu/">8月 8 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/08/08/2013-8-8-pscpu/">显示task在哪个cpu的脚本</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>为了显示task在SMP上的分布情况，写了个简陋的bash脚本,如下</p>
+<pre><code><span class="comment">#/bin/bash                                                                                                              </span>
+<span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$2</span>"</span> = <span class="string">"x"</span> ]</span>;<span class="keyword">then</span>
+        loop=0
+<span class="keyword">else</span>
+        loop=1
+<span class="keyword">fi</span>
+<span class="keyword">while</span> <span class="test_condition">[ 1 -eq 1 ]</span>
+<span class="keyword">do</span>
+printf <span class="string">"pid\tcpu0\tcpu1\tcpu2\tcpu3\tcpu4\n"</span>
+<span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$1</span>"</span> = <span class="string">"x"</span> ]</span>;<span class="keyword">then</span>
+        PIDLIST=`ls /proc/|grep <span class="string">"^[0-9]"</span>`
+<span class="keyword">else</span>
+        PIDLIST=`pidof <span class="variable">$1</span>`
+<span class="keyword">fi</span>
+<span class="keyword">for</span> PROC <span class="keyword">in</span> <span class="variable">$PIDLIST</span>
+<span class="keyword">do</span>
+        <span class="keyword">if</span> <span class="test_condition">[ -f /proc/<span class="variable">$PROC</span>/stat ]</span>;<span class="keyword">then</span>
+                cpu=`cat /proc/<span class="variable">$PROC</span>/stat|awk <span class="string">'{print $39}'</span>`
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x0"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\tX\t \t \t \t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x1"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \tX\t \t \t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x2"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \t \tX\t \t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x3"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \t \t \tX\t \n"</span>
+                <span class="keyword">fi</span>
+                <span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$cpu</span>"</span> = <span class="string">"x4"</span> ]</span>;<span class="keyword">then</span>
+                        printf <span class="string">"<span class="variable">$PROC</span>\t \t \t \t \tX\n"</span>
+                <span class="keyword">fi</span>
+        <span class="keyword">fi</span>
+<span class="keyword">done</span>
+<span class="keyword">if</span> <span class="test_condition">[ <span class="string">"x<span class="variable">$loop</span>"</span> = <span class="string">"x0"</span> ]</span>;<span class="keyword">then</span>
+<span class="keyword">exit</span> 0
+<span class="keyword">fi</span>
+sleep 1
+<span class="keyword">done</span></code></pre>
+<p>用法:<br>全部显示 ./pscpu.sh<br>显示某个AP的 ./pscpu.sh bash<br>循环显示 ./pscpu.sh bash 1</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-14T13:00:00.000Z"><a href="/2013/07/14/2013-7-14-android-nogpu/">7月 14 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/14/2013-7-14-android-nogpu/">Android on noGPU porting</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <ol>
+<li><p>Android on noGPU porting</p>
+<pre><code> <span class="number">1</span>)egl<span class="preprocessor">.cfg</span>
+ <span class="number">0</span> <span class="number">0</span> android
+ <span class="number">2</span>) remove gpu special gralloc<span class="preprocessor">.so</span> <span class="keyword">and</span> other <span class="preprocessor">.so</span>
+ <span class="number">3</span>)frameworks/base/packages/SettingsProvider/res/values/defaults<span class="preprocessor">.xml</span>
+ - &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">15000</span>&lt;/integer&gt;
+ + &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">600000</span>&lt;/integer&gt;
+ <span class="number">4</span>)frameworks/base/core/java/android/content/pm/PackageParser<span class="preprocessor">.java</span>
+ - boolean hardwareAccelerated = sa<span class="preprocessor">.getBoolean</span>(
+ + boolean hardwareAccelerated = false<span class="comment">;/*sa.getBoolean(</span>
+ <span class="keyword">com</span><span class="preprocessor">.android</span><span class="preprocessor">.internal</span><span class="preprocessor">.R</span><span class="preprocessor">.styleable</span><span class="preprocessor">.AndroidManifestApplication</span>_hardwareAccelerated,
+ - owner<span class="preprocessor">.applicationInfo</span><span class="preprocessor">.targetSdkVersion</span> &gt;= Build<span class="preprocessor">.VERSION</span>_CODES<span class="preprocessor">.ICE</span>_CREAM_SANDWICH)<span class="comment">;</span>
+ + owner<span class="preprocessor">.applicationInfo</span><span class="preprocessor">.targetSdkVersion</span> &gt;= Build<span class="preprocessor">.VERSION</span>_CODES<span class="preprocessor">.ICE</span>_CREAM_SANDWICH)<span class="comment">;*/</span>
+ <span class="number">5</span>)frameworks/base/core/java/android/view/ViewRootImpl<span class="preprocessor">.java</span>
+ - boolean hardwareAccelerated =
+ - (attrs<span class="preprocessor">.flags</span> &amp; WindowManager<span class="preprocessor">.LayoutParams</span><span class="preprocessor">.FLAG</span>_HARDWARE_ACCELERATED) != <span class="number">0</span><span class="comment">;</span>
+ + boolean hardwareAccelerated =false<span class="comment">;</span>
+ + //
+ <span class="number">6</span>)frameworks/base/core/java/android/view/Window<span class="preprocessor">.java</span>
+ - mHardwareAccelerated = hardwareAccelerated
+ - || SystemProperties<span class="preprocessor">.getBoolean</span>(PROPERTY_HARDWARE_UI, false)<span class="comment">;</span>
+ + mHardwareAccelerated = <span class="comment">/*hardwareAccelerated
+ + || SystemProperties.getBoolean(PROPERTY_HARDWARE_UI, false);*/</span>false<span class="comment">;</span>
+ <span class="number">7</span>)frameworks/base/packages/SettingsProvider/res/values/defaults<span class="preprocessor">.xml</span>
+ - &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">60000</span>&lt;/integer&gt;
+ + &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">600000</span>&lt;/integer&gt;
+ <span class="number">8</span>)frameworks/base/packages/SystemUI/src/<span class="keyword">com</span>/android/systemui/ImageWallpaper<span class="preprocessor">.java</span>
+ if (!isEmulator()) {
+ - mIsHwAccelerated = ActivityManager<span class="preprocessor">.isHighEndGfx</span>()<span class="comment">;</span>
+ + mIsHwAccelerated = false<span class="comment">;//ActivityManager.isHighEndGfx();</span>
+ <span class="number">9</span>)policy/src/<span class="keyword">com</span>/android/internal/policy/impl/keyguard/KeyguardViewMediator<span class="preprocessor">.java</span>
+ - private boolean mExternallyEnabled = true<span class="comment">;</span>
+ + private boolean mExternallyEnabled = false<span class="comment">;</span>
+ <span class="number">10</span>)services/java/<span class="keyword">com</span>/android/server/DynamicPManagerService<span class="preprocessor">.java</span>
+ mask some special operation to cpufreq sysfs interface
+ <span class="number">11</span>)services/java/<span class="keyword">com</span>/android/server/power/PowerManagerService<span class="preprocessor">.java</span>
+ @@ -<span class="number">1589</span>,<span class="number">8</span> +<span class="number">1589</span>,<span class="number">10</span> @@ public final class PowerManagerService extends IPowerManager<span class="preprocessor">.Stub</span>
+ if (shouldNapAtBedTimeLocked()) {
+ changed = napNoUpdateLocked(time)<span class="comment">;</span>
+ } else {
+ - changed = goToSleepNoUpdateLocked(time,
+ - PowerManager<span class="preprocessor">.GO</span>_TO_SLEEP_REASON_TIMEOUT)<span class="comment">;</span>
+ + Slog<span class="preprocessor">.i</span>(TAG, “updateWakefulnessLocked”)<span class="comment">;</span>
+ + changed = false<span class="comment">;</span>
+ + //goToSleepNoUpdateLocked(time,
+ + // PowerManager<span class="preprocessor">.GO</span>_TO_SLEEP_REASON_TIMEOUT)<span class="comment">;</span>
+ <span class="number">12</span>)libs/gui/Android<span class="preprocessor">.mk</span>
+ + LOCAL_CFLAGS += -DUSE_FENCE_SYNC
+ <span class="number">13</span>)system/core/init/property_service<span class="preprocessor">.c</span>
+ { “selinux.” , AID_SYSTEM, <span class="number">0</span> },
+ + { “service<span class="preprocessor">.bootanim</span><span class="preprocessor">.exit</span>”, AID_GRAPHICS, <span class="number">0</span> },
+ { NULL, <span class="number">0</span>, <span class="number">0</span> }
+ <span class="number">2.</span> start logcat method
+ <span class="number">1</span>) init<span class="preprocessor">.rc</span>
+ +service logcat /system/bin/logcat -f /dev/kmsg
+ + user root
+ + group root
+ + disabled
+ + oneshot
+ on property:ro<span class="preprocessor">.debuggable</span>=<span class="number">1</span>
+ start console
+ + start logcat
+ <span class="number">2</span>)logcat/logcat<span class="preprocessor">.cpp</span>
+ -<span class="preprocessor">#define ENABLE_KERNEL_LOG 1</span>
+ +//<span class="preprocessor">#define ENABLE_KERNEL_LOG 1</span></code></pre>
+</li>
+</ol>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-13T13:00:00.000Z"><a href="/2013/07/13/2013-7-13-android-fork-bug/">7月 13 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/13/2013-7-13-android-fork-bug/">android里fork挂起的问题(by cpuacct_add)</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>android里fork挂起</p>
+<p>现象）</p>
+<p>1) QQ管家-&gt;调用libcore里的java_lang_ProcessManager.cpp</p>
+<pre><code>pid_t childPid = fork();
+// If fork() failed…
+<span class="keyword">if</span> (childPid == -<span class="number">1</span>) {
+jniThrowIOException(env, errno);
+closePipes(pipes, -<span class="number">1</span>);
+<span class="command">return</span> -<span class="number">1</span>;
+}
+
+// If this <span class="keyword">is</span> <span class="keyword">the</span> child process…
+<span class="keyword">if</span> (childPid == <span class="number">0</span>) {
+/*
+* Note: We cannot malloc() <span class="keyword">or</span> free() <span class="keyword">after</span> this point!
+* A no-longer-<span class="property">running</span> thread may be holding <span class="function_start"><span class="keyword">on</span> <span class="title">to</span></span> <span class="keyword">the</span> heap lock, <span class="keyword">and</span>
+* an attempt <span class="keyword">to</span> malloc() <span class="keyword">or</span> free() would <span class="constant">result</span> <span class="keyword">in</span> deadlock.
+*/</code></pre>
+<p>2) 子进程挂死，父进程等子进程，也挂死</p>
+<p>3) 通过ps查看PC,　子进程在futex函数，　父进程在read函数</p>
+<p>4)通过strace -p pid连接上去，和３的结论类似</p>
+<p>5) 通过google fork futex android.　查找到4.0上有类似patch修复问题</p>
+<p>因为fork里调用了cpuacct_add函数，而该函数里调用的函数引起了malloc-&gt;futex，造成死锁</p>
+<p>这个在java_lang_ProcessManager.cpp里也说了要避免</p>
+<p>6) 应用patch,QQ管家OK,但有些测试APK不过(该patch替换了fopen和fprintf)</p>
+<p>7)　继续定位，发现似乎snprintf也会引起malloc</p>
+<p>8)　修改代码，不使用snprintf,自己实现itoa(应该也可以使用bionic里自带的）</p>
+<p>9)　测试通过</p>
+<pre><code><span class="comment"><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span>/patch<span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span><span class="xmlDocTag">///</span></span>
+diff –git a/libc/bionic/cpuacct.c b/libc/bionic/cpuacct.c
+old mode <span class="number">100644</span>
+<span class="keyword">new</span> mode <span class="number">100755</span>
+index <span class="number">7317073.</span>.aed9734
+— a/libc/bionic/cpuacct.c
++++ b/libc/bionic/cpuacct.c
+@@ -<span class="number">30</span>,<span class="number">16</span> +<span class="number">30</span>,<span class="number">60</span> @@
+<span class="preprocessor">#include &lt;errno.h&gt;</span>
+<span class="preprocessor">#include &lt;sys/stat.h&gt;</span>
+<span class="preprocessor">#include “cpuacct.h”</span>
++<span class="preprocessor">#include &lt;fcntl.h&gt;</span>
+
++
++<span class="keyword">static</span> <span class="keyword">int</span> my_itoa(<span class="keyword">int</span> val, <span class="keyword">char</span>* buf)
++{
++ <span class="keyword">const</span> unsigned <span class="keyword">int</span> radix = <span class="number">10</span>;
++ <span class="keyword">char</span>* p;
++ unsigned <span class="keyword">int</span> a; <span class="comment">//every digit</span>
++ <span class="keyword">int</span> len;
++ <span class="keyword">char</span>* b; <span class="comment">//start of the digit char</span>
++ <span class="keyword">char</span> temp;
++ unsigned <span class="keyword">int</span> u;
++ p = buf;
++ <span class="keyword">if</span> (val &lt; <span class="number">0</span>)
++ {
++ *p++ = ‘-’;
++ val = <span class="number">0</span> – val;
++ }
++ u = (unsigned <span class="keyword">int</span>)val;
++ b = p;
++ <span class="keyword">do</span>
++ {
++ a =u%radix;
++ u /= radix;
++ *p++ = a + ’<span class="number">0</span>′;
++ } <span class="keyword">while</span> (u &gt; <span class="number">0</span>);
++ len = (<span class="keyword">int</span>)(p – buf);
++ *p– = <span class="number">0</span>;
++
++ <span class="comment">//swap</span>
++ <span class="keyword">do</span>
++ {
++ temp = *p;
++ *p = *b;
++ *b = temp;
++ –p;
++ ++b;
++ } <span class="keyword">while</span> (b &lt; p);
++ <span class="keyword">return</span> len;
++}
+<span class="keyword">int</span> cpuacct_add(uid_t uid)
+{
+<span class="keyword">int</span> count;
+- FILE *fp;
++ <span class="keyword">int</span> fd;
++ <span class="keyword">char</span> zero[] = “<span class="number">0</span>″;
+<span class="keyword">char</span> buf[<span class="number">80</span>];
+
+- count = snprintf(buf, <span class="keyword">sizeof</span>(buf), “/acct/uid/%d/tasks”, uid);
+- fp = fopen(buf, “w+”);
+- <span class="keyword">if</span> (!fp) {
++ memset(buf,<span class="number">0</span>×<span class="number">0</span>,<span class="number">80</span>);
++ strcpy(buf, “/acct/uid/”);
++ my_itoa(uid,buf+strlen(buf));
++ strcpy(buf+strlen(buf), “/tasks”);
++count=strlen(buf);
++ fd = open(buf,O_RDWR | O_CREAT);
++ <span class="keyword">if</span> (fd &lt; <span class="number">0</span>) {
+<span class="comment">/* Note: sizeof(“tasks”) returns 6, which includes the NULL char */</span>
+buf[count - <span class="keyword">sizeof</span>(<span class="string">"tasks"</span>)] = <span class="number">0</span>;
+<span class="keyword">if</span> (mkdir(buf, <span class="number">0775</span>) &lt; <span class="number">0</span>)
+@@ -<span class="number">47</span>,<span class="number">13</span> +<span class="number">91</span>,<span class="number">14</span> @@ <span class="keyword">int</span> cpuacct_add(uid_t uid)
+
+<span class="comment">/* Note: sizeof(“tasks”) returns 6, which includes the NULL char */</span>
+buf[count - <span class="keyword">sizeof</span>(<span class="string">"tasks"</span>)] = ‘/’;
+- fp = fopen(buf, “w+”);
++ fd = open(buf, O_RDWR | O_CREAT);
+}
+- <span class="keyword">if</span> (!fp)
++
++ <span class="keyword">if</span> (fd &lt; <span class="number">0</span>)
+<span class="keyword">return</span> -errno;
+
+- fprintf(fp, “<span class="number">0</span>″);
+- <span class="keyword">if</span> (fclose(fp))
++ write(fd, zero, <span class="keyword">sizeof</span>(zero));
++ <span class="keyword">if</span> (close(fd))
+<span class="keyword">return</span> -errno;
+
+<span class="keyword">return</span> <span class="number">0</span>;</code></pre>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<nav id="pagination">
+  
+    <a href="/" class="alignleft prev">上一页</a>
+  
+  
+    <a href="/page/3/" class="alignright next">下一页</a>
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

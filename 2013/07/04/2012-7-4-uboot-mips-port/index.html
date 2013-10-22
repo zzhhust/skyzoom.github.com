@@ -1,0 +1,263 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Uboot Mips Port | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="1.    引言
+文章是2年前移植u-boot时候分析的,u-boot方面文章比较多,但是mips方面的稍微少一点,因此贴上来就当资料搜集贴吧.(Note: 图片上传后和原图有些出入,不知道什么原因,不过总体框图还是正确的)
+1.1.    参考资料
+詹荣开 原作者未考证  
+2.    需求分析
+">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Uboot Mips Port"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-04T13:00:00.000Z"><a href="/2013/07/04/2012-7-4-uboot-mips-port/">7月 4 2013</a></time>
+      
+      
+  
+    <h1 class="title">Uboot Mips Port</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><strong>1.    引言</strong></p>
+<p>文章是2年前移植u-boot时候分析的,u-boot方面文章比较多,但是mips方面的稍微少一点,因此贴上来就当资料搜集贴吧.<br>(Note: 图片上传后和原图有些出入,不知道什么原因,不过总体框图还是正确的)</p>
+<p><strong>1.1.    参考资料</strong></p>
+<p>詹荣开 <Bootloader技术内幕><br>原作者未考证  <au1500(mips)及yamon启动过程></p>
+<p><strong>2.    需求分析</strong></p>
+<p>Bootloader 在嵌入式系统中一般起硬件初始化和内核引导的作用,在产品中使用的Bootloader只要保证基本的功能和引导速度即可, 而作为开发使用的Bootloader,要求能提供灵活的配置方式和调试手段,一般选择已有的开源软件作为移植,下面主要分析Bootloader移植的 需求<br><strong>2.1.    基本功能需求</strong></p>
+<p>基本功能包括:<br>1. 硬件初始化:<br>根据具体的硬件环境,初始化必要的寄存器和外设<br>2. 内核引导<br>从存储介质中读取内核映象, 并引导<br>3. 代码下载<br>提供一种或几种机制能从主机直接下载文件到SDRAM中<br>2.2.    扩展功能需求<br>扩展功能主要是为了提供调试手段的多样化和便利化做的一些工作,包括:<br>1.    环境变量的保存:<br>提供一种能将用户定制的一些参数和脚本保存的机制;<br>2.    文件写入存储介质:<br>提供将SDRAM中文件写入存储介质的功能;<br>3.    USB调试手段:<br>提供使用USB作为控制终端和下载方式的调试开发功能;<br>4.    文件系统解析:<br>提供文件系统解析功能,使Bootloader能从存储介质的文件系统目录里读取文件。</p>
+<p><strong>3.    原理分析</strong></p>
+<p><strong>3.1.    Bootloader原理分析</strong></p>
+<p>(1)    Boot Loader简介<br>Bootloader就是在操作系统内核运行之前运行的一段小程序。通过这段小程序，我们可以初始化硬件设备、建立内存空间的映射图，从而将系统的软硬件环境带到一个合适的状态，以便为最终调用操作系统内核准备好正确的环境。</p>
+<p>(2)    Boot Loader的操作模式(Operation Mode)<br>大多数 Boot Loader 都包含两种不同的操作模式：“启动加载”模式和“下载”模式，这种区别仅对于开发人员才有意义。但从最终用户的角度看，Boot Loader 的作用就是用来加载操作系统，而并不存在所谓的启动加载模式与下载工作模式的区别。<br>启 动加载（Boot loading）模式：这种模式也称为“自主”（Autonomous）模式。也即 Boot Loader 从目标机上的某个固态存储设备上将操作系统加载到 RAM 中运行，整个过程并没有用户的介入。这种模式是 Boot Loader 的正常工作模式，因此在嵌入式产品发布的时侯，Boot Loader 显然必须工作在这种模式下。<br>下载（Downloading）模式：在这种 模式下，目标机上的 Boot Loader 将通过串口连接或网络连接等通信手段从主机（Host）下载文件，比如：下载内核映像和根文件系统映像等。从主机下载的文件通常首先被 Boot Loader 保存到目标机的 RAM 中，然后再被 Boot Loader 写到目标机上的FLASH 类固态存储设备中。</p>
+<p>(3)    Bootloader的两段式启动<br>由 于 Boot Loader 的实现依赖于 CPU 的体系结构，因此大多数 Boot Loader 都分为 stage1 和 stage2 两大部分。依赖于 CPU 体系结构的代码，比如设备初始化代码等，通常都放在 stage1 中，而且通常都用汇编语言来实现，以达到短小精悍的目的。而 stage2 则通常用C语言来实现，这样可以实现给复杂的功能，而且代码会具有更好的可读性和可移植性。<br>Boot Loader 的 stage1 通常包括以下步骤(以执行的先后顺序)：</p>
+<pre><code>硬件设备初始化。
+
+为加载 Boot Loader 的 stage2 准备 RAM 空间。
+
+拷贝 Boot Loader 的 stage2 到 RAM 空间中。
+
+设置好堆栈。
+
+跳转到 stage2 的 C 入口点。</code></pre>
+<p>Boot Loader 的 stage2 通常包括以下步骤(以执行的先后顺序)：</p>
+<pre><code>初始化本阶段要使用到的硬件设备。
+
+检测系统内存映射(memory <span class="keyword">map</span>)。
+
+将 kernel 映像和根文件系统映像从 flash 上读到 RAM 空间中。
+
+为内核设置启动参数。
+
+调用内核。</code></pre>
+<p>(4)    Bootloader结构<br>Bootloader的组成模块结构如下图所示:<br>Shell控制台(通过串口输出和接收命令来控制)<br>上层功能(包括monitor功能,和最基本的启动linux kernel功能)<br>底层驱动<br>(主要两种:一种是读写存储介质&lt;硬盘,flash驱动等&gt;,一种是与主机通信&lt;网卡和串口&gt;)<br>架构相关代码(架构相关的初始化代码)</p>
+<p><strong>3.2.    U-boot与Yamon比较</strong></p>
+<p>目前支持MIPS架构的Bootloader主要有U-Boot与Yamon两种,下面我们来分析比较一下<br>,如下表所示:<br>特点和功能<br>U-boot<br>Yamon<br>支持的cpu和board</p>
+<ol>
+<li>支持种类繁多，包括arm的各个系列,ppc,mips</li>
+<li>mips的支持较差，目前支持au1100,au1500系列，4kec的需要自己移植<br>(工作量主要在起始代码的初始化部分，包括cahe和中断的初始化)</li>
+</ol>
+<p>1.基本上对mips系列的都支持,包括SEADTM ,SEAD-2TM MaltaTM, AltasTM</p>
+<p>2.基本上属于mips系列专用，未听说过将Yamon应用去其他架构的实例（可行性低，相当于重写）</p>
+<p>Image大小<br>通常200k~300k左右，可对一些功能进行裁减至100k下<br>一般最小500k<br>主要包括初始代码(start code)+大端image+小端image,通过修改，可裁减掉一种endian的image,大概减少200k左右<br>最小化裁减：可能接近100k</p>
+<p>代码结构</p>
+<p>1． 采用了将平台无关和平台相关的代码分开处理的方法<br>内核启动方式<br>串口，tftp，本地, DHCP<br>串口，tftp，本地<br>内核支持格式<br>Vmlinux,或gzip压缩，或bzip2压缩，或zImage<br>只支持原始的vmlinux,网上有人也尝试修改过yamon来支持zImage(amd的1500开发板提供了支持zImage的补丁)<br>调试功能<br>只有简单的Go<br>功能强大，支持gdb，还有异常处理等<br>可移植性<br>对于移植到新的板子或cpu，需要修改的目录结构较清晰，容易添加<br>因为yamon没有采用大量的ifdef来控制选项，是通过yamon启动后自动detect到cpu和board的类型的，所以修改稍微麻烦<br>可裁减性<br>结构清晰，易于裁减<br>结构也较清晰，但由于存在较多yamon自动检测的部分，裁减性稍差<br>可扩展性<br>易于扩展，对于扩展shell命令和增加Driver较为容易<br>对shell command和Driver的支持也较易添加<br>总结<br>U-boot是一个较为通用的Bootloader,主要目的是启动内核，同时给开发者提供较为方便的移植性，U-Boot的扩展功能什么丰富;<br>Yamon(Yet Another Monitor)是主要针对MIPS系列cpu的一个功能强大的Rom monitor程序,Yamon的扩展功能较为单一;</p>
+<p><strong>结论</strong></p>
+<p>使用U-Boot作为开发用Bootloader</p>
+<p>下面是Yamon的目录分析和启动流程图(主要根据参考资料里的总结)</p>
+<p><strong>Yamon目录结构</strong><br><img src="http://farm4.staticflickr.com/3695/9412961770_a8b1fa2b84_o.png" alt=""></p>
+<p><strong>Yamon启动流程</strong><br><img src="http://farm8.staticflickr.com/7383/9410198953_d327fd4871_o.jpg" alt=""></p>
+<p><strong>3.3.    U-Boot目录结构</strong></p>
+<p>根据上面的比较,我们简单分析一下U-Boot的代码目录结构,描述其代码主要功能,如下图所示:</p>
+<p><img src="http://farm4.staticflickr.com/3695/9412961770_a8b1fa2b84_o.png" alt=""></p>
+<p><strong>4.    设计移植</strong></p>
+<p><strong>4.1.    启动流程</strong></p>
+<p>下面我们详细分析U-Boot的启动流程,并指出针对具体的硬件,启动流程中需要修改的代码,如下图所示:<br><img src="http://farm4.staticflickr.com/3812/9412967040_1f1db5d616_o.jpg" alt=""></p>
+<p><strong>4.2.    移植分析</strong></p>
+<p>根据上述分析,我们代码移植也包括三方面:<br>(1)    片级移植:<br>片级移植主要是针对具体cpu的初始化代码的修改,针对我们的mips平台,主要包括: a) 通用寄存器的初始化<br>b) CP0的初始化(status, config, watch, count, compare, etc.)<br>c) Watchdog初始化<br>d) Cache初始化<br>e) TLB初始化<br>(2)    板级移植<br>a)    串口驱动<br>b)    flash读写驱动(nor, nand)<br>c)    HD读写驱动<br>d)    网卡驱动<br>(3)    功能层扩展<br>可根据需求添加新功能或裁减优化,包括调试功能,启动功能,下载功能</p>
+<p><strong>4.3.    修改代码</strong></p>
+<p>主要修改的代码说明如下:<br>(1)    Makefile 添加开发板的编译支持;<br>(2)    Include/configs/myboard.h 开发板的定义,启动参数等;<br>(3)    cpu/mips/start.S 修改初始化代码和入口;<br>(4)    board/myboard/flash.c 对应的Nor Flash驱动;<br>(5)    board/myboard/myboard.c 对应的板级初始化代码;<br>(6)    board/myboard/lowlevel_init.S 初始化硬件的汇编代码;<br>(7)    board/myboard/serial.c 串口驱动;<br>(8)    drivers/rtl8019.h drivers/rtl8019.c 修改RTL8019驱动的寄存器定义等。</p>
+<p><strong>5.    扩展功能</strong></p>
+<p>以下的功能是根据以后开发调试的不同需求,有可能需要添加的功能</p>
+<p><strong>5.1.    Logo功能</strong></p>
+<p>LOGO功能在产品级使用中需要,在一般开发中可不使用,目前使用简单的写RGB数据来实现LOGO功能。</p>
+<p><strong>5.2.    NOR Flash驱动</strong></p>
+<p>NOR Flash的读取是不需要驱动的,如果需要保存数据到NOR flash,或通过bootloader提供烧写功能,就必须实现NOR Flash驱动, 由于最终产品不会有NOR, 且目前开发板NOR已有烧写工具,因此未实现NOR Flash驱动。</p>
+<p><strong>5.3.    Nand Flash驱动</strong><br>在后期的开发板,将使用Nand Flash作为存储介质,如果需要使用U-boot作为开发用Bootloader,需要将Nand Flash驱动移植到U-Boot中。</p>
+<p><strong>5.4.    ATA 驱动</strong></p>
+<p>在后期的开发板,如果使用硬盘作为存储介质,如果需要使用U-boot作为开发用Bootloader,需要将ATA驱动移植到U-Boot中。</p>
+<p><strong>5.5.    文件系统解析</strong></p>
+<p>目前U-Boot支持ext2, FAT等,如果需要支持其他文件系统,需要移植对应的代码。</p>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/mips/">mips</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/uboot/">uboot</a>, <a href="/tags/mips/">mips</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

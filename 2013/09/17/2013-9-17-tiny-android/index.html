@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>tiny android | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="tiny-android for linux development 
+1.get any source of android (example android-4.2.2)
+
+2. cd android-4.2.2
+    source build/envsetup.sh
+    BUILD_TI">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="tiny android"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-09-17T13:00:00.000Z"><a href="/2013/09/17/2013-9-17-tiny-android/">9月 17 2013</a></time>
+      
+      
+  
+    <h1 class="title">tiny android</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><strong>tiny-android for linux development</strong> </p>
+<pre><code><span class="comment">1</span>.<span class="comment">get</span> <span class="comment">any</span> <span class="comment">source</span> <span class="comment">of</span> <span class="comment">android</span> <span class="comment">(example</span> <span class="comment">android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2)</span>
+
+<span class="comment">2</span>. <span class="comment">cd</span> <span class="comment">android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2</span>
+    <span class="comment">source</span> <span class="comment">build/envsetup</span>.<span class="comment">sh</span>
+    <span class="comment">BUILD_TINY_ANDROID=true</span> <span class="comment">make</span> <span class="literal">-</span><span class="comment">j8</span>
+
+<span class="comment">3</span>. <span class="comment">cd</span> <span class="comment">linux</span>-<span class="comment">bsp/</span>
+   <span class="comment">a)</span> 
+   <span class="comment">mkdir</span> <span class="comment">rootfs</span>
+   <span class="comment">cp</span> <span class="literal">-</span><span class="comment">a</span> <span class="string">.</span><span class="string">.</span><span class="comment">/android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2/out/target/product/generic/root/*</span> <span class="comment">rootfs/</span>
+   <span class="comment">cp</span> <span class="literal">-</span><span class="comment">a</span> <span class="string">.</span><span class="string">.</span><span class="comment">/android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2/out/target/product/generic/system</span> <span class="comment">rootfs/</span>
+   <span class="comment">cp</span> <span class="literal">-</span><span class="comment">a</span> <span class="string">.</span><span class="string">.</span><span class="comment">/android</span>-<span class="comment">4</span>.<span class="comment">2</span>.<span class="comment">2/out/target/product/generic/data</span> <span class="comment">rootfs/</span>   
+   <span class="comment">b)</span>
+    <span class="comment">manual</span> <span class="comment">copy</span> 
+        <span class="comment">adbd</span> <span class="comment">to</span> <span class="comment">rootfs/sbin/</span>
+        <span class="comment">debuggerrd</span> <span class="comment">to</span> <span class="comment">rootfs/system/bin/</span>
+        <span class="comment">linker</span> <span class="comment">to</span> <span class="comment">rootfs/system/bin/</span>
+        <span class="comment">static</span> <span class="comment">linked</span> <span class="comment">busybox</span> <span class="comment">to</span> <span class="comment">/system/bin/</span>
+   <span class="comment">c)</span>
+    <span class="comment">remove</span> <span class="comment">unneed</span> <span class="comment">*</span>.<span class="comment">rc(</span> <span class="comment">example:</span> <span class="comment">goldfish</span>.<span class="comment">rc</span> <span class="comment">trace</span>.<span class="comment">rc</span> <span class="comment">usb</span>.<span class="comment">rc)</span>
+   <span class="comment">d)</span> <span class="comment">chmod</span>  
+    <span class="comment">cd</span> <span class="comment">rootfs</span>
+    <span class="comment">find</span> <span class="string">.</span> <span class="literal">-</span><span class="comment">type</span> <span class="comment">f|xargs</span> <span class="comment">chmod</span> <span class="comment">g</span>-<span class="comment">w</span>
+    <span class="comment">find</span> <span class="string">.</span> <span class="literal">-</span><span class="comment">type</span> <span class="comment">f|xargs</span> <span class="comment">chmod</span> <span class="comment">o</span>-<span class="comment">w</span>            
+
+<span class="comment">4</span>.<span class="comment">moidfy</span> <span class="comment">init</span>.<span class="comment">rc</span>
+<span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="comment">init</span>.<span class="comment">rc</span>  <span class="comment">2013</span>-<span class="comment">09</span>-<span class="comment">16</span> <span class="comment">16:54:22</span>.<span class="comment">560750293</span> <span class="literal">+</span><span class="comment">0800</span>
+<span class="literal">+</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">init</span>.<span class="comment">rc</span>     <span class="comment">2013</span>-<span class="comment">09</span>-<span class="comment">17</span> <span class="comment">08:34:07</span>.<span class="comment">775479178</span> <span class="literal">+</span><span class="comment">0800</span>
+<span class="comment">@@</span> <span class="literal">-</span><span class="comment">127</span>,<span class="comment">14</span> <span class="literal">+</span><span class="comment">127</span>,<span class="comment">9</span> <span class="comment">@@</span>
+ <span class="comment">on</span> <span class="comment">fs</span>
+ <span class="comment">#</span> <span class="comment">mount</span> <span class="comment">mtd</span> <span class="comment">partitions</span>
+     <span class="comment">#</span> <span class="comment">Mount</span> <span class="comment">/system</span> <span class="comment">rw</span> <span class="comment">first</span> <span class="comment">to</span> <span class="comment">give</span> <span class="comment">the</span> <span class="comment">filesystem</span> <span class="comment">a</span> <span class="comment">chance</span> <span class="comment">to</span> <span class="comment">save</span> <span class="comment">a</span> <span class="comment">checkpoint</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@system</span> <span class="comment">/system</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@system</span> <span class="comment">/system</span> <span class="comment">ro</span> <span class="comment">remount</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@userdata</span> <span class="comment">/data</span> <span class="comment">nosuid</span> <span class="comment">nodev</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">yaffs2</span> <span class="comment">mtd@cache</span> <span class="comment">/cache</span> <span class="comment">nosuid</span> <span class="comment">nodev</span>
+
+ <span class="comment">on</span> <span class="comment">post</span>-<span class="comment">fs</span>
+     <span class="comment">#</span> <span class="comment">once</span> <span class="comment">everything</span> <span class="comment">is</span> <span class="comment">setup</span>, <span class="comment">no</span> <span class="comment">need</span> <span class="comment">to</span> <span class="comment">modify</span> <span class="comment">/</span>
+<span class="literal">-</span>    <span class="comment">mount</span> <span class="comment">rootfs</span> <span class="comment">rootfs</span> <span class="comment">/</span> <span class="comment">ro</span> <span class="comment">remount</span>
+     <span class="comment">#</span> <span class="comment">mount</span> <span class="comment">shared</span> <span class="comment">so</span> <span class="comment">changes</span> <span class="comment">propagate</span> <span class="comment">into</span> <span class="comment">child</span> <span class="comment">namespaces</span>
+     <span class="comment">mount</span> <span class="comment">rootfs</span> <span class="comment">rootfs</span> <span class="comment">/</span> <span class="comment">shared</span> <span class="comment">rec</span>
+     <span class="comment">mount</span> <span class="comment">tmpfs</span> <span class="comment">tmpfs</span> <span class="comment">/mnt/secure</span> <span class="comment">private</span> <span class="comment">rec</span>
+<span class="comment">@@</span> <span class="literal">-</span><span class="comment">384</span>,<span class="comment">12</span> <span class="literal">+</span><span class="comment">379</span>,<span class="comment">11</span> <span class="comment">@@</span>
+     <span class="comment">restart</span> <span class="comment">ueventd</span>
+     <span class="comment">restart</span> <span class="comment">installd</span>
+
+<span class="literal">-</span><span class="comment">service</span> <span class="comment">console</span> <span class="comment">/system/bin/sh</span>
+<span class="literal">+</span><span class="comment">service</span> <span class="comment">console</span> <span class="comment">/system/bin/busybox</span> <span class="comment">sh</span>
+     <span class="comment">class</span> <span class="comment">core</span>
+     <span class="comment">console</span>
+     <span class="comment">disabled</span>
+<span class="literal">-</span>    <span class="comment">user</span> <span class="comment">shell</span>
+<span class="literal">-</span>    <span class="comment">group</span> <span class="comment">log</span>
+<span class="literal">+</span>    <span class="comment">user</span> <span class="comment">root</span>
+
+ <span class="comment">on</span> <span class="comment">property:ro</span>.<span class="comment">debuggable=1</span>
+     <span class="comment">start</span> <span class="comment">console</span>
+
+<span class="comment">5</span>. <span class="comment">modify</span> <span class="comment">linux</span> <span class="comment">kernel</span> <span class="string">.</span><span class="comment">config</span> <span class="comment">enable</span> <span class="comment">USB</span> <span class="comment">&amp;</span> <span class="comment">USB</span> <span class="comment">HCD</span> <span class="comment">&amp;</span> <span class="comment">BINDER</span> <span class="comment">&amp;</span> <span class="comment">ASHMEM</span> <span class="comment">&amp;</span> <span class="comment">ANDROID_LOW_MEMORY_KILLER</span>
+
+<span class="comment">6</span>. <span class="comment">compile</span> <span class="comment">linux</span>-<span class="comment">bsp</span>  
+
+<span class="comment">7</span>.<span class="comment">replace</span> <span class="comment">rootfs</span>
+   <span class="comment">pack</span> <span class="comment">the</span> <span class="comment">rootfs</span> <span class="comment">dir</span> <span class="comment">to</span> <span class="comment">rootfs</span>.<span class="comment">ext4</span>, <span class="comment">and</span> <span class="comment">replace</span> <span class="comment">orig</span> <span class="comment">rootfs</span>
+<span class="comment">8</span>.<span class="comment">build</span> <span class="comment">firmware</span> <span class="comment">&amp;</span> <span class="comment">buring</span> <span class="comment">to</span> <span class="comment">flash</span>
+<span class="comment">9</span>.<span class="comment">boot</span> <span class="comment">system</span>
+    <span class="comment">a)</span> <span class="comment">enable</span> <span class="comment">mass_storage</span>,<span class="comment">adb</span>
+    <span class="comment">echo</span> <span class="comment">0</span> &gt;<span class="comment">/sys/class/android_usb/android0/enable</span> 
+    <span class="comment">echo</span> <span class="comment">"Your</span> <span class="comment">VID"</span> &gt;<span class="comment">/sys/class/android_usb/android0/idVendor</span> 
+    <span class="comment">echo</span> <span class="comment">"Your</span> <span class="comment">PID"</span> &gt;<span class="comment">/sys/class/android_usb/android0/idProduct</span> 
+    <span class="comment">echo</span> <span class="comment">mass_storage</span>,<span class="comment">adb</span> &gt;<span class="comment">/sys/class/android_usb/android0/functions</span> 
+    <span class="comment">echo</span> <span class="comment">1</span> &gt;<span class="comment">/sys/class/android_usb/android0/enable</span>
+
+    <span class="comment">b)</span> <span class="comment">start</span> <span class="comment">adbd</span>
+       <span class="comment">adbd</span> <span class="comment">&amp;</span>                  
+
+    <span class="comment">c)</span> <span class="comment">PC</span> <span class="comment">test</span>
+        <span class="comment">adb</span> <span class="comment">shell</span> <span class="comment">Success!</span>   </code></pre>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/android/">android</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/android/">android</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

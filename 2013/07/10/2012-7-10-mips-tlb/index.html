@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>MIPS TLB | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="ASID + Virtual Address=&gt; TLB = G|ASID|VPN2(31~23)|CMASK|PFN0(31~12)|C|D|V|PFN1(31~12)|C|D|V
+VPN：
+虚地址的高位（即虚页地址）。在双入口TLB内被称作VPN2
+PageMask：
+控制使用虚地址的多少">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="MIPS TLB"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-10T13:00:00.000Z"><a href="/2013/07/10/2012-7-10-mips-tlb/">7月 10 2013</a></time>
+      
+      
+  
+    <h1 class="title">MIPS TLB</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>ASID + Virtual Address=&gt; TLB = G|ASID|VPN2(31~23)|CMASK|PFN0(31~12)|C|D|V|PFN1(31~12)|C|D|V</p>
+<p>VPN：</p>
+<p>虚地址的高位（即虚页地址）。在双入口TLB内被称作VPN2</p>
+<p>PageMask：</p>
+<p>控制使用虚地址的多少位来跟VPN进行比较;并决定多少位被通过后加入实地址；最大达16MB的内存</p>
+<p>ASID：</p>
+<p>Ø           标记这个TLB过程属于某一个特定进程，因此除非CPU的当前              ASID与之相吻合，否则匹配是不会成功的。</p>
+<p>Ø           ”G”这一位如果被置起为1，则关闭ASID的匹配，</p>
+<p>Ø           ASID位在早期CPU中为6位长度，而在近期的CPU中则为8位。</p>
+<p>TLB输出:  给出物理页号和标志位。</p>
+<p>Ø           PFN:物理页号</p>
+<p>Ø           C: 缓存控制</p>
+<p>Ø           D: 写控制位(为1则允许数据写入相应的页)</p>
+<p>Ø           V: Valid位,如果是0，则相应的入口是不可使用</p>
+<p>TLB HIT：</p>
+<pre><code><span class="attribute">1)CPU产生一个程序地址：</code></pre>
+<p>i)  无论是取指令，还是装入和写回数据；</p>
+<p>ii) 低12位被分离开来，剩下的处于EntryHi的VPN和ASID相拼作为TLB的键值</p>
+<p>iii) TLB入口中的PageMask位与C位对这个值有修改效果。</p>
+<pre><code><span class="attribute">2)TLB进行键值匹配：</code></pre>
+<p>匹配成功的入口被选出。PFN被附加在程序地址的低位之前以产生一个完整的物理地址。</p>
+<pre><code><span class="attribute">3)地址有效吗？</code></pre>
+<p>V位和D位被参考:  如果地址为无效或者正试图写一个D位为0的页，CPU产生Trap。</p>
+<pre><code>4)是否被缓存？  如果C位被置起，那么Cache取数；否则按策略取数</code></pre>
+<p>TLB MISS:</p>
+<p>1) 判断是否存在一个正确的转译；如果不存在，这个陷入会被派发到用于处理地址错误的程序中去。</p>
+<p>2) 假如存在一个正确的转译，那么创建一个用于实现转译的TLB入口。</p>
+<p>3)假如TLB已经装满（在运行中的系统中它基本上也总是满的），软件要选择一个可以丢弃的入口。</p>
+<p>4)软件把新的入口内容填入TLB。 </p>
+<pre><code>tlb refill exception(0×80000000):
+(1) get badvaddr,pgd
+(2) pte table ptr = badvaddr&gt;&gt;22 &lt; 2 + pgd ,
+(3) get context,off<span class="operator"><span class="keyword">set</span> = context &gt;&gt; <span class="number">1</span> &amp; <span class="number">0xff8</span> (<span class="keyword">bit</span> <span class="number">21</span>-<span class="number">13</span> + three zero),
+(<span class="number">4</span>) <span class="keyword">load</span> offset(pte <span class="keyword">table</span> ptr) <span class="keyword">and</span> offset+<span class="number">4</span>(pte <span class="keyword">table</span> ptr),
+*(<span class="number">5</span>) <span class="keyword">right</span> shift <span class="number">6</span> bits,<span class="keyword">write</span> <span class="keyword">to</span> entrylo[<span class="number">01</span>],
+(<span class="number">6</span>) tlbwr
+tlb modified <span class="keyword">exception</span>(handle_mod):
+(<span class="number">1</span>) <span class="keyword">load</span> pte,
+*(<span class="number">2</span>) if _PAGE_WRITE <span class="keyword">set</span>,<span class="keyword">set</span> ACCESSED | MODIFIED | VALID | DIRTY,          reload tlb,tlbwi
+<span class="keyword">else</span> DO_FAULT(<span class="number">1</span>)
+tlb <span class="keyword">load</span> <span class="keyword">exception</span>(handle_tlbl):
+(<span class="number">1</span>) <span class="keyword">load</span> pte
+(<span class="number">2</span>) if _PAGE_PRESENT &amp;&amp; _PAGE_READ, <span class="keyword">set</span> ACCESSED | VALID
+<span class="keyword">else</span> DO_FAULT(<span class="number">0</span>)
+tlb store <span class="keyword">exception</span>(handle_tlbs):
+(<span class="number">1</span>) <span class="keyword">load</span> pte
+*(<span class="number">2</span>) if _PAGE_PRESENT &amp;&amp; _PAGE_WRITE,<span class="keyword">set</span> ACCESSED | MODIFIED | VALID | DIRTY
+<span class="keyword">else</span> DO_FAULT(<span class="number">1</span>)</code></pre>
+<p>TLB Refill:  代码注释<br>    lui   k1,%hi(pgd_current)          //当前进程的PGD表地址高位<br>    mfc0  k0,C0_BADVADDR       //取TLB MISS vaddr地址<br>    lw    k1,%lo(pgd_current)(K1)  //(页表地址高位|低位) -&gt; k1<br>    srl   k0,K0,22                           //k0 右移22 bit;即pgd = 高10bit<br>    sll   k0,K0,2                             //k0 左移2bit;因为每项占４个字节,所以pgd<em>4<br>    addu  k1,K1,K0                       //k1=pgd_current+pgd_index</em>4;<br>    mfc0 k0,C0_Context               //context -&gt; k0<br>    lw   k1,0(k1)                            //k1&lt;- pgd_current[pgd_index];即PTE表入口<br>    srl   k0,k0,1         //k0右移1bit ,因为一次映射2页,去掉1bit<br>    andi   k0,k0,0xff8     //k0取9bit ;后面还有3bit,因为每项8BYTE<br>    addu  k1,k1,k0                        //pte_base + pte_index<br>    lw k0,0(k1)                           //k0&lt;- pte_base(pte_index):           entry0<br>    lw k1,sizeof(pte_t)(k1)       // k1&lt;- pte_base(pte_index) +４:    entry1<br>    srl k0,k0,6                            // k0右移6bit; 后6bit是软件位,不填到TLB里<br>    mtc0 k0,C0_ENTRYLO0<br>    srl k1,k1,6<br>    mtc0 k1,C0_ENTRYLO1<br>    sll    zero,zero,0×3               //ehb的gcc实现<br>    Tlbwr                                 //写入TLB<br>    eret</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/mips/">mips</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/tlb/">tlb</a>, <a href="/tags/mips/">mips</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

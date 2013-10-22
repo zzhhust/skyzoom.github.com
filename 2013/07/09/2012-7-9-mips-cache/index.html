@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>MIPS cache | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="Cache Op
+cache ops, addr
+ops:
+占 5 位，低 2 位 Cache 类型 (L1 I, L1 D, L2, L3)，高3 位指定执行的操作。
+addr
+HIT操作:
+先用 addr 的组选位（位12~4）索引组，同时将 VA 经 TLB 转换为 PA，然后匹配 Tag，命">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="MIPS cache"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-09T13:00:00.000Z"><a href="/2013/07/09/2012-7-9-mips-cache/">7月 9 2013</a></time>
+      
+      
+  
+    <h1 class="title">MIPS cache</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Cache Op</p>
+<p>cache ops, addr</p>
+<p>ops:</p>
+<p>占 5 位，低 2 位 Cache 类型 (L1 I, L1 D, L2, L3)，高3 位指定执行的操作。</p>
+<p>addr</p>
+<p>HIT操作:</p>
+<p>先用 addr 的组选位（位12~4）索引组，同时将 VA 经 TLB 转换为 PA，然后匹配 Tag，命中 (Hit) 则对相应的行执行操作，否则什么也不做。</p>
+<p>Index操作:</p>
+<p>无需匹配（不需要虚实地址转换），组选后直接用地址的中部（位14~13）进行组内索引（路选）：</p>
+<p>Cache init</p>
+<p>mtc0 zero, CP0_TAGLO                   //保证写入的TAG无效</p>
+<p>li   t0, CFG_DCACHE_SIZE              #cache total size</p>
+<p>li   t1, CFG_CACHELINE_SIZE        #cache line size</p>
+<p>li   t2, 0×80000000                     //保证不发生TLB异常,而且此地址                                          为最低位,一般SDRAM再小也能满足</p>
+<p>addu t3, t0, t2cacheloop:</p>
+<p>cache 8, 0(t2)  /<em> icache_index_store_tag </em>/</p>
+<p>cache 9, 0(t2)  /<em> dcache_index_store_tag </em>/</p>
+<p>addu t2, t1</p>
+<p>bne t2, t3, cacheloop</p>
+<p>nop</p>
+<p>Cache Alias</p>
+<p>定义:</p>
+<p>在使用 VA 索引，PA 匹配的 Cache 里，可能存在多个 VA 映射到同一个 PA 的情形（共享内存），这样的 Cache 是先用 VA 索引组，则他们可能会索引到不同的组（只要组索引位不一样），尽管尔后用于匹配的 PA Tag 相同，但因为不在同一组，因此无可避免的在Cache 中会有两个镜像。</p>
+<p>现象:</p>
+<p>设 VA1、VA2皆映射到 PA0，VA1 的组选位为 0，VA2的组选位为 3，某时用 VA1 取值后向 VA1更新数据，则对 write back 的 Cache 最新的数据缓存于 Cache 的组 0 (Set 0)，尔后用 VA2访问同一内存空间，则其取到的值并非是最新的，这即是典型的 Cache Aliases 造成的存储不一致的问题。</p>
+<p>判断:</p>
+<p>对于 VA 索引，PA 匹配的 Cache，如果 Way_Size &gt; PAGE_SIZE，则存在 Cache Aliases 的问题</p>
+<p>颜色位:</p>
+<p>log2(Way_Size) &gt; log2(PAGE_SIZE) ,多出的位称为颜色位 (color bit)</p>
+<p>解决方法:</p>
+<p>1)    扩大页</p>
+<p>2)   每个有风险地方flush cache</p>
+<p>copy_from_user_page(…)</p>
+<p>{</p>
+<pre><code>   if (cpu_has_dc_aliases)
+
+          flush_cache_page(vma, vaddr, page_to_pfn(page))<span class="comment">;</span>
+
+   memcpy(dst, src, len)<span class="comment">;</span></code></pre>
+<p>}</p>
+<p>3)   Kmap_coherent</p>
+<pre><code>          void *vfrom = kmap_coherent(page, vaddr) + (vaddr &amp; ~PAGE_MASK)<span class="comment">;</span>
+
+          memcpy(dst, vfrom, len)<span class="comment">;</span>
+
+          kunmap_coherent()<span class="comment">;</span></code></pre>
+<p>Kmap_coherent原理</p>
+<p>1)    内核中使用copy_from_user_page等从用户空间读取数据(或写数据时)</p>
+<p>由于Vaddr是进程的TLB地址,因此内核不直接使用,而是转换为kseg0地址</p>
+<p>然后memcpy</p>
+<p>2)    kseg0地址颜色bit可能和vaddr不一样,有cache alias风险</p>
+<p>3)    所以要么在memcpy前先flush vaddr</p>
+<p>4)    要么分配一个颜色bit和vaddr一样的地址(kmap_coherent在kseg2分配了1个,并固定映射),memcpy完再释放</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/mips/">mips</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/mips/">mips</a>, <a href="/tags/cache/">cache</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

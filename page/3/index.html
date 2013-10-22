@@ -1,0 +1,536 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>第 3 页 | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-12T13:00:00.000Z"><a href="/2013/07/12/2013-7-12-softlockup-bug/">7月 12 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/12/2013-7-12-softlockup-bug/">soft lockup BUG in android</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>现象:</p>
+<p>发现Video解码 + GPU驱动copybit时,有softlockup打印</p>
+<p>此时打印寄存器现场, 有do_softirq提示,但无其他提示</p>
+<p>定位:</p>
+<p>1) 找了一个patch,号称可以让do_softirq打印更多信息，但试了没帮助（这个后面有解释）</p>
+<p>2)　发现kernel/softlockup.c里有</p>
+<p>if(regs)</p>
+<p>打印regs</p>
+<p>else</p>
+<p>dumpstack</p>
+<p>把else注释掉，打印信息里有GPU的函数信息</p>
+<p>3)　在GPU驱动里加了很多打印，或者代码review，未发现问题</p>
+<p>4) 　想起一个ethernet的softlockup问题，因为ehternet clock不对，造成irq pending清除不掉，一直进irq handle</p>
+<p>5) 　在video的irq_handle里加打印，发现果然irq pending清楚不掉，进而发现video模块的regs无法写入，怀疑也可能是clock问题，转硬件人员协助跟进</p>
+<p>结论：</p>
+<p>１）　为什么会打印do_softirq,　因为video模块的irq_handle代码很少，就清理pending，然后complete,　而ethernet的irq handler比较长，所以softlockup dumpstack提示了ethernet的irq_handle信息，而我们始终无法从打印中获取任何video驱动的函数信息</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-11T13:00:00.000Z"><a href="/2013/07/11/2013-7-11-repo-sync-force/">7月 11 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/11/2013-7-11-repo-sync-force/">repo sync -f</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>google最新的repo sync -f按说明似乎可以跳过无法下载的代码</p>
+<p>本来打算用这个来做权限管理(没权限的自动跳过),这样只要维护一个manifes.xml</p>
+<p>发现repo sync -f 仍然有错</p>
+<p>尝试fix如下:</p>
+<pre><code>— a/subcmds/sync<span class="variable">.py</span>
++++ b/subcmds/sync<span class="variable">.py</span>
+@@ -<span class="number">163</span>,<span class="number">6</span> +<span class="number">163</span>,<span class="number">7</span> @@ later is <span class="keyword">required</span> to fix a server side <span class="class"><span class="keyword">protocol</span> <span class="id">bug</span>.</span>
+print &gt;&gt;sys<span class="variable">.stderr</span>, ’error: Cannot fetch %s’ % project<span class="variable">.name</span>
+<span class="keyword">if</span> opt<span class="variable">.force_broken</span>:
+print &gt;&gt;sys<span class="variable">.stderr</span>, ’warn: –force-broken, continuing to sync’
++           os<span class="variable">.popen</span>(‘rm -rf %s’%project<span class="variable">.gitdir</span>)
+<span class="keyword">else</span>:
+sys<span class="variable">.exit</span>(<span class="number">1</span>)
+<span class="keyword">else</span>:
+@@ -<span class="number">186</span>,<span class="number">7</span> +<span class="number">187</span>,<span class="number">11</span> @@ later is <span class="keyword">required</span> to fix a server side <span class="class"><span class="keyword">protocol</span> <span class="id">bug</span>.</span>
+
+pm<span class="variable">.end</span>()
+<span class="keyword">for</span> project in projects:
+-      project<span class="variable">.bare_git</span><span class="variable">.gc</span>(‘–auto’)
++      <span class="keyword">if</span> opt<span class="variable">.force_broken</span>:
++        <span class="keyword">if</span> os<span class="variable">.path</span><span class="variable">.exists</span>(project<span class="variable">.gitdir</span>):
++          project<span class="variable">.bare_git</span><span class="variable">.gc</span>(‘–auto’)
++      <span class="keyword">else</span>:
++        project<span class="variable">.bare_git</span><span class="variable">.gc</span>(‘–auto’)
+<span class="keyword">return</span> fetched
+
+def UpdateProjectList(<span class="keyword">self</span>):
+@@ -<span class="number">364</span>,<span class="number">7</span> +<span class="number">369</span>,<span class="number">13</span> @@ uncommitted changes are present’ % project<span class="variable">.relpath</span>
+<span class="keyword">for</span> project in all:
+pm<span class="variable">.update</span>()
+<span class="keyword">if</span> project<span class="variable">.worktree</span>:
+-        project<span class="variable">.Sync_LocalHalf</span>(syncbuf)
++        <span class="keyword">if</span> opt<span class="variable">.force_broken</span>:
++         <span class="keyword">if</span> os<span class="variable">.path</span><span class="variable">.exists</span>(project<span class="variable">.gitdir</span>):
++            project<span class="variable">.Sync_LocalHalf</span>(syncbuf)
++         <span class="keyword">else</span>:
++           os<span class="variable">.popen</span>(‘rm -rf %s’%project<span class="variable">.worktree</span>)
++        <span class="keyword">else</span>:
++         project<span class="variable">.Sync_LocalHalf</span>(syncbuf)
+pm<span class="variable">.end</span>()
+print &gt;&gt;sys<span class="variable">.stderr</span>
+<span class="keyword">if</span> not syncbuf<span class="variable">.Finish</span>():</code></pre>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-11T13:00:00.000Z"><a href="/2013/07/11/2012-7-11-android-mips-build/">7月 11 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/11/2012-7-11-android-mips-build/">MIPS android 编译总结</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <ol>
+<li>参考文档<br>1.1 Obtaining MIPS Android Source Code    (<a href="http://www.mipsandroid.com/documents/show/1" target="_blank">http://www.mipsandroid.com/documents/show/1</a>)<br>1.2 Compiling Android for MIPS (<a href="http://www.awakecoding.com/index.php?option=com_content&amp;view=article&amp;id=21:compiling-android-for-mips" target="_blank">http://www.awakecoding.com/index.php?option=com_content&amp;view=article&amp;id=21:compiling-android-for-mips</a>)<br>1.3 移植Android到MIPS平台（续） (<a href="http://my.unix-center.net/~Simon_fu/?p=557" target="_blank">http://my.unix-center.net/~Simon_fu/?p=557</a>) </li>
+<li><p>环境准备<br>2.1 安装ubuntu(使用virtulbox)<br>2.2 安装其他需要工具<br>sudo apt-get install gcc build-essential git-core libreadline-dev zip curl wget valgrind python eclipse ecj flex bison gperf libsdl-dev libwxgtk2.6-dev libgmp3-dev libsds-dev clearsilver-dev libclearsilver-perl python-clearsilver gcc-multilib g++-multilib<br>2.3 安装java jdk<br>sudo apt-get sun-java5-jdk<br>sudo update-alternatives –config java  (选择刚安装完的JDK目录)<br>sudo update-alternatives –config javac<br>sudo update-alternatives –config javadoc<br>2.4 安装mips-4.3 toolchain<br>此步骤可省略，使用android自带的prebuilt toolchain即可</p>
+</li>
+<li><p>源码下载</p>
+<pre><code> <span class="variable">$ </span>curl <span class="symbol">http:</span>/<span class="regexp">/android.git.kernel.org/repo</span> &gt;~<span class="regexp">/bin/repo</span>
+ <span class="variable">$ </span>chmod a+x ~<span class="regexp">/bin/repo</span>
+ <span class="variable">$ </span>mkdir mipsandroid
+ <span class="variable">$ </span>cd mipsandroid
+ <span class="variable">$ </span>repo init -u <span class="symbol">git:</span>/<span class="regexp">/public.mipsandroid.com/mips</span><span class="regexp">/platform/manifest</span>.git -b mips-eclair
+ <span class="variable">$ </span>repo sync</code></pre>
+</li>
+<li><p>编译<br>4.1 准备<br>在mipsandroid下添加env.sh如下</p>
+<pre><code> export <span class="constant">TOP</span>=’pwd’
+ export <span class="constant">J2RE_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun/jre
+ export <span class="constant">JAVA_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun
+ export <span class="constant">ANDROID_JAVA_HOME</span>=<span class="regexp">/usr/lib</span><span class="regexp">/jvm/java</span>-<span class="number">1.5</span>.<span class="number">0</span>-sun
+ source build/envsetup.sh
+ export <span class="constant">USE_CCACHE</span>=<span class="number">1</span>
+ export <span class="constant">TARGET_ARCH_VERSION</span>=mips32r2
+ export <span class="constant">TARGET_ARCH</span>=mips
+ export <span class="constant">ANDROID_PRODUCT_OUT</span>=~<span class="regexp">/android/mipsandroid</span><span class="regexp">/out/target</span><span class="regexp">/product/generic</span>
+ export <span class="constant">PATH</span>=<span class="variable">$PATH</span><span class="symbol">:~/android/mipsandroid/out/host/linux-x86/bin/</span></code></pre>
+</li>
+</ol>
+<p>4.2 步骤<br>source env.sh<br>make<br>4.3 此时已生成emulator和对应的system.img ramdisk.img userdata.img(kernel-qemu使用prebuilt的）</p>
+<p>4.3问题总结<br>之前由于PRODUCT指定不对，造成编译出的init使用了hard float point的libc，重新make clean;make解决</p>
+<p>5.编译SDK<br>5.1 执行<br>在4步骤完成后<br>make sdk</p>
+<p>5.2 问题总结<br>5.2.1 提示crtbegin_so.S找不到<br>修改bionic/libc/Android.mk如下，注释掉</p>
+<pre><code>#ifeq ($(TARGET_ARCH),mips)
+# we only need begin_so/end_so <span class="keyword">for</span> mips, since it needs an appropriate .init
+# section <span class="keyword">in</span> the shared library <span class="keyword">with</span> a <span class="function"><span class="keyword">function</span> <span class="title">to</span> <span class="title">call</span> <span class="title">all</span> <span class="title">the</span> <span class="title">entries</span> <span class="title">in</span>
+# .<span class="title">ctors</span> <span class="title">section</span>.
+#<span class="title">GEN</span> := <span class="title">$</span><span class="params">(TARGET_OUT_STATIC_LIBRARIES)</span>/<span class="title">crtbegin_so</span>.<span class="title">o</span>
+#<span class="title">$</span><span class="params">(GEN)</span>: <span class="title">$</span><span class="params">(LOCAL_PATH)</span>/<span class="title">arch</span>-<span class="title">$</span><span class="params">(TARGET_ARCH)</span>/<span class="title">bionic</span>/<span class="title">crtbegin_so</span>.<span class="title">S</span>
+#    @<span class="title">mkdir</span> -<span class="title">p</span> <span class="title">$</span><span class="params">(dir $@)</span>
+#    <span class="title">$</span><span class="params">(TARGET_CC)</span> <span class="title">$</span><span class="params">(libc_crt_target_cflags)</span> -<span class="title">o</span> <span class="title">$</span>@ -<span class="title">c</span> <span class="title">$</span>&lt;
+#<span class="title">ALL_GENERATED_SOURCES</span> += <span class="title">$</span><span class="params">(GEN)</span>
+#
+#<span class="title">GEN</span> := <span class="title">$</span><span class="params">(TARGET_OUT_STATIC_LIBRARIES)</span>/<span class="title">crtend_so</span>.<span class="title">o</span>
+#<span class="title">$</span><span class="params">(GEN)</span>: <span class="title">$</span><span class="params">(LOCAL_PATH)</span>/<span class="title">arch</span>-<span class="title">$</span><span class="params">(TARGET_ARCH)</span>/<span class="title">bionic</span>/<span class="title">crtend_so</span>.<span class="title">S</span>
+#    @<span class="title">mkdir</span> -<span class="title">p</span> <span class="title">$</span><span class="params">(dir $@)</span>
+#    <span class="title">$</span><span class="params">(TARGET_CC)</span> <span class="title">$</span><span class="params">(libc_crt_target_cflags)</span> -<span class="title">o</span> <span class="title">$</span>@ -<span class="title">c</span> <span class="title">$</span>&lt;
+#<span class="title">ALL_GENERATED_SOURCES</span> += <span class="title">$</span><span class="params">(GEN)</span>
+#<span class="title">endif</span> # <span class="title">TARGET_ARCH</span> == <span class="title">mips</span></code></pre>
+<p>5.2.2 生成的linux sdk使用不正常，发现kernel-qemu拷贝的是arm的，将其替换即可</p>
+<p>6.编译windows SDK<br>6.1 步骤<br>1)将mipsandroid拷贝到cygwin里<br>2)windows安装java jdk<br>3)修改env.sh</p>
+<pre><code>export <span class="constant">TOP</span>=’pwd’
+export <span class="constant">J2RE_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>/jre
+export <span class="constant">JAVA_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>
+export <span class="constant">ANDROID_JAVA_HOME</span>=<span class="regexp">/cygdrive/c</span><span class="regexp">/Java/jdk</span>1.<span class="number">5.0_20</span>
+source build/envsetup.sh
+export <span class="constant">TARGET_ARCH_VERSION</span>=mips32r2
+export <span class="constant">TARGET_ARCH</span>=mips
+export <span class="constant">ANDROID_PRODUCT_OUT</span>=~<span class="regexp">/android/mipsandroid</span><span class="regexp">/out/target</span><span class="regexp">/product/generic</span>
+export <span class="constant">PATH</span>=<span class="variable">$PATH</span><span class="symbol">:/cygdrive/c/Java/jdk1</span>.<span class="number">5.0_20</span>/bin</code></pre>
+<p>4)修改make_windows_sdk.sh，增加acp编译（android 2.2)，修改cygwin目录，删除adb/fastboot编译（android 2.2)，如下</p>
+<pre><code>a) CYG_MGWZ_PATH=/cygdrive/c/cygwin/bin/mgwz.dll                                                           -&gt;  CYG_MGWZ_PATH=/cygdrive/e/cygwin/bin/mgwz.dll
+b) SDK_NUMBER=`echo $filename | sed -n ‘s/^.*_([^_./]+)_[^_.]*..*$/<span class="number">1</span>/p’` -&gt;  SDK_NUMBER=<span class="number">2.2</span>
+c)    aapt adb aidl
+etc1tool
+prebuilt
+dexdump dmtracedump
+fastboot
+-&gt;
+acp aapt aidl
+etc1tool
+prebuilt
+dexdump dmtracedump
+d) cp -v out/host/windows-x86/bin/*.{exe,dll} “$TOOLS”/ -&gt;  cp -v out/host/windows-x86/bin/*.exe “$TOOLS”/
+e)
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v $CYG_MGWZ_PATH “$TOOLS”/
+-&gt;
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v $CYG_MGWZ_PATH “$TOOLS”/
+cp -v /cygdrive/e/cygwin/bin/cygz.dll “$TOOLS”/
+cp -v /cygdrive/e/cygwin/bin/cygwin1.dll “$TOOLS”/
+f)
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v “$TOOLS”/mgwz.dll “$PLATFORM_TOOLS”/
+-&gt;
+<span class="string">[[ -n $NEED_MGWZ ]]</span> &amp;&amp; cp -v “$TOOLS”/mgwz.dll “$PLATFORM_TOOLS”/
+cp -v “$TOOLS”/cygz.dll “$PLATFORM_TOOLS”/
+cp -v “$TOOLS”/cygwin1.dll “$PLATFORM_TOOLS”/</code></pre>
+<p>5)修改external/sqlite/dist/shell.c</p>
+<pre><code>#if defined(HAVE_READLINE) &amp;&amp; HAVE_READLINE==1  -&gt; #if 0
+# include <span class="tag">&lt;<span class="title">readline</span>/<span class="attribute">readline.h</span>&gt;</span>
+# include <span class="tag">&lt;<span class="title">readline</span>/<span class="attribute">history.h</span>&gt;</span></code></pre>
+<p>6.2 安装使用<br>kernel-qemu还是arm的，替换成mips的</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-10T13:00:00.000Z"><a href="/2013/07/10/2012-7-10-mips-tlb/">7月 10 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/10/2012-7-10-mips-tlb/">MIPS TLB</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>ASID + Virtual Address=&gt; TLB = G|ASID|VPN2(31~23)|CMASK|PFN0(31~12)|C|D|V|PFN1(31~12)|C|D|V</p>
+<p>VPN：</p>
+<p>虚地址的高位（即虚页地址）。在双入口TLB内被称作VPN2</p>
+<p>PageMask：</p>
+<p>控制使用虚地址的多少位来跟VPN进行比较;并决定多少位被通过后加入实地址；最大达16MB的内存</p>
+<p>ASID：</p>
+<p>Ø           标记这个TLB过程属于某一个特定进程，因此除非CPU的当前              ASID与之相吻合，否则匹配是不会成功的。</p>
+<p>Ø           ”G”这一位如果被置起为1，则关闭ASID的匹配，</p>
+<p>Ø           ASID位在早期CPU中为6位长度，而在近期的CPU中则为8位。</p>
+<p>TLB输出:  给出物理页号和标志位。</p>
+<p>Ø           PFN:物理页号</p>
+<p>Ø           C: 缓存控制</p>
+<p>Ø           D: 写控制位(为1则允许数据写入相应的页)</p>
+<p>Ø           V: Valid位,如果是0，则相应的入口是不可使用</p>
+<p>TLB HIT：</p>
+<pre><code><span class="attribute">1)CPU产生一个程序地址：</code></pre>
+<p>i)  无论是取指令，还是装入和写回数据；</p>
+<p>ii) 低12位被分离开来，剩下的处于EntryHi的VPN和ASID相拼作为TLB的键值</p>
+<p>iii) TLB入口中的PageMask位与C位对这个值有修改效果。</p>
+<pre><code><span class="attribute">2)TLB进行键值匹配：</code></pre>
+<p>匹配成功的入口被选出。PFN被附加在程序地址的低位之前以产生一个完整的物理地址。</p>
+<pre><code><span class="attribute">3)地址有效吗？</code></pre>
+<p>V位和D位被参考:  如果地址为无效或者正试图写一个D位为0的页，CPU产生Trap。</p>
+<pre><code>4)是否被缓存？  如果C位被置起，那么Cache取数；否则按策略取数</code></pre>
+<p>TLB MISS:</p>
+<p>1) 判断是否存在一个正确的转译；如果不存在，这个陷入会被派发到用于处理地址错误的程序中去。</p>
+<p>2) 假如存在一个正确的转译，那么创建一个用于实现转译的TLB入口。</p>
+<p>3)假如TLB已经装满（在运行中的系统中它基本上也总是满的），软件要选择一个可以丢弃的入口。</p>
+<p>4)软件把新的入口内容填入TLB。 </p>
+<pre><code>tlb refill exception(0×80000000):
+(1) get badvaddr,pgd
+(2) pte table ptr = badvaddr&gt;&gt;22 &lt; 2 + pgd ,
+(3) get context,off<span class="operator"><span class="keyword">set</span> = context &gt;&gt; <span class="number">1</span> &amp; <span class="number">0xff8</span> (<span class="keyword">bit</span> <span class="number">21</span>-<span class="number">13</span> + three zero),
+(<span class="number">4</span>) <span class="keyword">load</span> offset(pte <span class="keyword">table</span> ptr) <span class="keyword">and</span> offset+<span class="number">4</span>(pte <span class="keyword">table</span> ptr),
+*(<span class="number">5</span>) <span class="keyword">right</span> shift <span class="number">6</span> bits,<span class="keyword">write</span> <span class="keyword">to</span> entrylo[<span class="number">01</span>],
+(<span class="number">6</span>) tlbwr
+tlb modified <span class="keyword">exception</span>(handle_mod):
+(<span class="number">1</span>) <span class="keyword">load</span> pte,
+*(<span class="number">2</span>) if _PAGE_WRITE <span class="keyword">set</span>,<span class="keyword">set</span> ACCESSED | MODIFIED | VALID | DIRTY,          reload tlb,tlbwi
+<span class="keyword">else</span> DO_FAULT(<span class="number">1</span>)
+tlb <span class="keyword">load</span> <span class="keyword">exception</span>(handle_tlbl):
+(<span class="number">1</span>) <span class="keyword">load</span> pte
+(<span class="number">2</span>) if _PAGE_PRESENT &amp;&amp; _PAGE_READ, <span class="keyword">set</span> ACCESSED | VALID
+<span class="keyword">else</span> DO_FAULT(<span class="number">0</span>)
+tlb store <span class="keyword">exception</span>(handle_tlbs):
+(<span class="number">1</span>) <span class="keyword">load</span> pte
+*(<span class="number">2</span>) if _PAGE_PRESENT &amp;&amp; _PAGE_WRITE,<span class="keyword">set</span> ACCESSED | MODIFIED | VALID | DIRTY
+<span class="keyword">else</span> DO_FAULT(<span class="number">1</span>)</code></pre>
+<p>TLB Refill:  代码注释<br>    lui   k1,%hi(pgd_current)          //当前进程的PGD表地址高位<br>    mfc0  k0,C0_BADVADDR       //取TLB MISS vaddr地址<br>    lw    k1,%lo(pgd_current)(K1)  //(页表地址高位|低位) -&gt; k1<br>    srl   k0,K0,22                           //k0 右移22 bit;即pgd = 高10bit<br>    sll   k0,K0,2                             //k0 左移2bit;因为每项占４个字节,所以pgd<em>4<br>    addu  k1,K1,K0                       //k1=pgd_current+pgd_index</em>4;<br>    mfc0 k0,C0_Context               //context -&gt; k0<br>    lw   k1,0(k1)                            //k1&lt;- pgd_current[pgd_index];即PTE表入口<br>    srl   k0,k0,1         //k0右移1bit ,因为一次映射2页,去掉1bit<br>    andi   k0,k0,0xff8     //k0取9bit ;后面还有3bit,因为每项8BYTE<br>    addu  k1,k1,k0                        //pte_base + pte_index<br>    lw k0,0(k1)                           //k0&lt;- pte_base(pte_index):           entry0<br>    lw k1,sizeof(pte_t)(k1)       // k1&lt;- pte_base(pte_index) +４:    entry1<br>    srl k0,k0,6                            // k0右移6bit; 后6bit是软件位,不填到TLB里<br>    mtc0 k0,C0_ENTRYLO0<br>    srl k1,k1,6<br>    mtc0 k1,C0_ENTRYLO1<br>    sll    zero,zero,0×3               //ehb的gcc实现<br>    Tlbwr                                 //写入TLB<br>    eret</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-09T13:00:00.000Z"><a href="/2013/07/09/2012-7-9-mips-cache/">7月 9 2013</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2013/07/09/2012-7-9-mips-cache/">MIPS cache</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>Cache Op</p>
+<p>cache ops, addr</p>
+<p>ops:</p>
+<p>占 5 位，低 2 位 Cache 类型 (L1 I, L1 D, L2, L3)，高3 位指定执行的操作。</p>
+<p>addr</p>
+<p>HIT操作:</p>
+<p>先用 addr 的组选位（位12~4）索引组，同时将 VA 经 TLB 转换为 PA，然后匹配 Tag，命中 (Hit) 则对相应的行执行操作，否则什么也不做。</p>
+<p>Index操作:</p>
+<p>无需匹配（不需要虚实地址转换），组选后直接用地址的中部（位14~13）进行组内索引（路选）：</p>
+<p>Cache init</p>
+<p>mtc0 zero, CP0_TAGLO                   //保证写入的TAG无效</p>
+<p>li   t0, CFG_DCACHE_SIZE              #cache total size</p>
+<p>li   t1, CFG_CACHELINE_SIZE        #cache line size</p>
+<p>li   t2, 0×80000000                     //保证不发生TLB异常,而且此地址                                          为最低位,一般SDRAM再小也能满足</p>
+<p>addu t3, t0, t2cacheloop:</p>
+<p>cache 8, 0(t2)  /<em> icache_index_store_tag </em>/</p>
+<p>cache 9, 0(t2)  /<em> dcache_index_store_tag </em>/</p>
+<p>addu t2, t1</p>
+<p>bne t2, t3, cacheloop</p>
+<p>nop</p>
+<p>Cache Alias</p>
+<p>定义:</p>
+<p>在使用 VA 索引，PA 匹配的 Cache 里，可能存在多个 VA 映射到同一个 PA 的情形（共享内存），这样的 Cache 是先用 VA 索引组，则他们可能会索引到不同的组（只要组索引位不一样），尽管尔后用于匹配的 PA Tag 相同，但因为不在同一组，因此无可避免的在Cache 中会有两个镜像。</p>
+<p>现象:</p>
+<p>设 VA1、VA2皆映射到 PA0，VA1 的组选位为 0，VA2的组选位为 3，某时用 VA1 取值后向 VA1更新数据，则对 write back 的 Cache 最新的数据缓存于 Cache 的组 0 (Set 0)，尔后用 VA2访问同一内存空间，则其取到的值并非是最新的，这即是典型的 Cache Aliases 造成的存储不一致的问题。</p>
+<p>判断:</p>
+<p>对于 VA 索引，PA 匹配的 Cache，如果 Way_Size &gt; PAGE_SIZE，则存在 Cache Aliases 的问题</p>
+<p>颜色位:</p>
+<p>log2(Way_Size) &gt; log2(PAGE_SIZE) ,多出的位称为颜色位 (color bit)</p>
+<p>解决方法:</p>
+<p>1)    扩大页</p>
+<p>2)   每个有风险地方flush cache</p>
+<p>copy_from_user_page(…)</p>
+<p>{</p>
+<pre><code>   if (cpu_has_dc_aliases)
+
+          flush_cache_page(vma, vaddr, page_to_pfn(page))<span class="comment">;</span>
+
+   memcpy(dst, src, len)<span class="comment">;</span></code></pre>
+<p>}</p>
+<p>3)   Kmap_coherent</p>
+<pre><code>          void *vfrom = kmap_coherent(page, vaddr) + (vaddr &amp; ~PAGE_MASK)<span class="comment">;</span>
+
+          memcpy(dst, vfrom, len)<span class="comment">;</span>
+
+          kunmap_coherent()<span class="comment">;</span></code></pre>
+<p>Kmap_coherent原理</p>
+<p>1)    内核中使用copy_from_user_page等从用户空间读取数据(或写数据时)</p>
+<p>由于Vaddr是进程的TLB地址,因此内核不直接使用,而是转换为kseg0地址</p>
+<p>然后memcpy</p>
+<p>2)    kseg0地址颜色bit可能和vaddr不一样,有cache alias风险</p>
+<p>3)    所以要么在memcpy前先flush vaddr</p>
+<p>4)    要么分配一个颜色bit和vaddr一样的地址(kmap_coherent在kseg2分配了1个,并固定映射),memcpy完再释放</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<nav id="pagination">
+  
+    <a href="/page/2/" class="alignleft prev">上一页</a>
+  
+  
+    <a href="/page/4/" class="alignright next">下一页</a>
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

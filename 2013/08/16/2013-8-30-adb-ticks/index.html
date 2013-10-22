@@ -1,0 +1,264 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于adb使用的一些技巧 | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="关于adb使用的一些技巧  
+1.判断连接启动
+    if echo $(adb get-state)|grep &quot;device&quot;;then
+        if adb shell getprop|grep &quot;sys.boot_completed&quot; &gt;/dev/null;then
+    ">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="关于adb使用的一些技巧"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-08-16T13:00:00.000Z"><a href="/2013/08/16/2013-8-30-adb-ticks/">8月 16 2013</a></time>
+      
+      
+  
+    <h1 class="title">关于adb使用的一些技巧</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>关于adb使用的一些技巧  </p>
+<pre><code><span class="number">1</span>.判断连接启动
+    <span class="keyword">if</span> echo <span class="variable">$(</span>adb get-<span class="keyword">state</span>)|<span class="keyword">grep</span> <span class="string">"device"</span>;then
+        <span class="keyword">if</span> adb shell getprop|<span class="keyword">grep</span> <span class="string">"sys.boot_completed"</span> &gt;<span class="regexp">/dev/null</span>;then
+                    echo Device connected
+                    echo Device Boot Completed
+                    <span class="keyword">break</span>
+        <span class="keyword">else</span>
+                    echo Device Boot Not Completed
+                    <span class="keyword">sleep</span> <span class="number">3</span>
+        fi
+    <span class="keyword">else</span>
+
+
+<span class="number">2</span>.查询包安装
+adb shell pm list packages|<span class="keyword">grep</span> <span class="string">"<span class="variable">$1</span>"</span>
+<span class="number">3</span>.杀掉应用
+adb shell am <span class="keyword">kill</span>-all
+am force-stop com.android.browser
+
+<span class="number">4</span>.启动应用
+网页
+adb shell <span class="string">"am start -a android.intent.action.VIEW -d file:///data/test/index.html"</span>   
+音乐
+adb shell <span class="string">"am start -n com.android.music/.MediaPlaybackActivity -d /sdcard/Audio/1.mp3"</span>    
+benchmark
+adb shell <span class="string">"am start ca.primatelabs.geekbench2/.HomeActivity"</span>
+
+<span class="number">5</span>.等待应用
+Music
+<span class="keyword">while</span> [ <span class="number">1</span> = <span class="number">1</span> ]
+<span class="keyword">do</span>    
+    last_write=<span class="variable">$(</span>adb shell dumpsys media.audio_flinger|<span class="keyword">grep</span> <span class="keyword">last</span>|awk <span class="string">'{print $5}'</span>)
+    <span class="keyword">if</span> [ <span class="variable">$last_write</span> -<span class="keyword">gt</span> <span class="number">2000</span> ];then
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>
+        <span class="keyword">sleep</span> <span class="number">2</span>
+    fi
+done    
+
+benchmark
+<span class="keyword">while</span> [ <span class="number">1</span> = <span class="number">1</span> ]
+<span class="keyword">do</span> 
+    <span class="keyword">if</span> dumpsys activity|<span class="keyword">grep</span> <span class="string">"ca.primatelabs.geekbench2/.DocumentActivity"</span>;then
+        <span class="keyword">break</span>
+    <span class="keyword">else</span>       
+        <span class="keyword">sleep</span> <span class="number">1</span>
+        <span class="keyword">continue</span>
+    fi
+done    
+<span class="number">6</span>.截图
+adb shell screencap -p /sdcard/<span class="number">1</span>.png    
+
+<span class="number">7</span>.按键控制
+adb shell input keyevent <span class="number">19</span>
+<span class="number">19</span>:up
+<span class="number">20</span>:down
+<span class="number">21</span>:left
+<span class="number">22</span>:right
+<span class="number">66</span>:Enter
+<span class="number">4</span>: ESC
+<span class="number">26</span>: POWER
+<span class="number">82</span>:MENU
+
+<span class="number">8</span>.自动解锁
+<span class="keyword">if</span> adb shell dumpsys power|<span class="keyword">grep</span> mWakefulness|<span class="keyword">grep</span> Asleep;then
+    adb shell input keyevent <span class="number">26</span> <span class="comment">#POWER       </span>
+fi
+<span class="keyword">sleep</span> <span class="number">1</span>
+adb shell input keyevent <span class="number">82</span> <span class="comment">#MENU   </span></code></pre>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/tools/">tools</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/android/">android</a>, <a href="/tags/adb/">adb</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

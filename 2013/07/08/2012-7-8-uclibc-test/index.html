@@ -1,0 +1,272 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>uClibc体验 | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="继上次用buildroot建立好toolchain后,测试能编译hello,hello-c++, hello-mt,开始编译整个项目所有应用.
+
+首先要编译QTE, 发现无论怎么配置,编译完库后,再编译应用总是提示有未定义符号,后来发现其实是之前应用开发人员在配置时候是直接修改的config.h文件">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="uClibc体验"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-08T13:00:00.000Z"><a href="/2013/07/08/2012-7-8-uclibc-test/">7月 8 2013</a></time>
+      
+      
+  
+    <h1 class="title">uClibc体验</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>继上次用buildroot建立好toolchain后,测试能编译hello,hello-c++, hello-mt,开始编译整个项目所有应用.</p>
+<ol>
+<li>首先要编译QTE, 发现无论怎么配置,编译完库后,再编译应用总是提示有未定义符号,后来发现其实是之前应用开发人员在配置时候是直接修改的config.h文件,因此已经 无法用configure命令来还愿了,只要用笨的方法,configure之后再用差分工具对比所有Makefile和代码文件, 合并后编译通过</li>
+</ol>
+<p>2.编译hello qt上板运行通过</p>
+<p>3.简单qte小游戏运行通过</p>
+<p>4.多媒体播放软件无法运行, 只有提示segentation fault.</p>
+<p>决定跟踪一下</p>
+<p>考虑方式如下:</p>
+<p>1) ltrace</p>
+<p>2)strace</p>
+<p>3) coredump + gdb</p>
+<p>为了调试segmentation fault,决定使用ltrace</p>
+<ol>
+<li>先下了个ltrace-0.4版本,configure出错,提示需要libelf</li>
+</ol>
+<p>2.下载elfutils-0.131</p>
+<p>./configure –host=mipsel-linux –target=mipsel-linux</p>
+<p>make -c lib-elf</p>
+<p>提示需要libintl</p>
+<ol>
+<li>google,发现libintl在gettext里,下载gettext-0.17</li>
+</ol>
+<p>直接进入gettext-runtime目录</p>
+<p>./configure –with-included-gettext –prefix=/usr/local/crosstool/mipsel-linux –host=mipsel-linux</p>
+<p>make ;make install</p>
+<p>4.重新make elfutils-0.131</p>
+<p>cd lib-elf</p>
+<p>make;make install</p>
+<p>5.回到ltrace-0.4里,发现不支持mipsel</p>
+<p>下载最新的版本 ltrace-0.5_77</p>
+<p>下载补丁</p>
+<p><a href="http://svn.freetz.org/branches/stable-15/make/ltrace/patches/" target="_blank">http://svn.freetz.org/branches/stable-15/make/ltrace/patches/</a></p>
+<p>6.打补丁</p>
+<p>7.进入ltrace</p>
+<p>./autongen.sh</p>
+<p>8.</p>
+<p>./configure –host=mipsel-linux –target=mipsel-linux</p>
+<p>9.</p>
+<p>make</p>
+<p>结果发现编译到sysdepslinux-gnui386里了</p>
+<p>直接暴力修改Makefile</p>
+<p>ARCH  := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/<br>-e s/arm.*/arm/ -e s/sa110/arm/ -e s/ppc64/ppc/ -e s/s390x/s390/ -e s/mips/mipsel/)</p>
+<p>ARCH=mipsel</p>
+<p>10.编译出错，提示之前安装的libelf.h里的size_t没认出来,查了文件包含,未发现出错</p>
+<p>直接替换libelf.h里的size_t为unsigned int, offset64_t为long long</p>
+<p>最终编译出了ltrace</p>
+<p>11.用ltrace跟踪出错的qte程序,毫无提示,郁闷</p>
+<p>1.直接sourceforge下载4.5.15最新的</p>
+<p>2.CC=mipsel-linux-gcc ./configure –host=mipsel-linux</p>
+<p>3.make</p>
+<p>4.拷贝到小机, strace 出错应用,毫无提示</p>
+<p>5.strace 了一下hellqt,提示信息很完整</p>
+<p>6.郁闷,开始逐个对比出错和不出错的应用,发现不出错的都没用多线程</p>
+<p>7.这才想起没测试一下多线程的hello-mt, 上板一测,果然不通过</p>
+<p>8.goolge,发现mailist上有类似问题,回答是linuxthreads是有问题,不爽就用会linuxthreads.old</p>
+<p>9.重做uclibc with linuxthreads.old,整合到toolchain,重新编译, 果然应用能起来了</p>
+<p>10.还有几个多煤体处理程序仍然有异常,而且加了任何打印都没出来,郁闷,后续继续跟踪</p>
+<p>BTW: uClibc还有个问题,类似<strong>getpgid, </strong>memcpy等函数好象默认没有导出来,如果需要导出,应该需要修改,并重新buildroot,为了省事,直接将Ap里的__getpgid等替换成没有下划线的</p>
+<p>继上次调试后,仍有部分应用启动后没有任何提示,在main中加如打印也没反映,所以怀疑还是在库加载阶段就挂了.</p>
+<p>分析库依赖,比其他应用多了两个库,分别写ap测试,定位到某个库libabc.so, 仔细分析没啥特别的,分析库依赖</p>
+<p>发现libabc.so 依赖libpthread,   应用test以来libabc.so,但是应用Makefile没有指定-lpthread, 之前用glibc编译和运行是没问题的, 莫非uClibc有问题? 修改,编译,运行,果然,OK!</p>
+<p>虽然解决问题了,但仍未弄清区别,后面有时间还要仔细看看报</p>
+<p>用uClibc后,发现每次启动screenadjust就zombie了,而用glibc却没这种问题.  分析流程,在/etc/profile里启动了Manager, Manager在类构造函数里注册了SIGCHLD的处理函数(在函数里用waitpid等待), 然后用fork+execvp启动screenadjust,而当screenadjust结束后,Manager未收到SIGCHLD,因此没有回收进 程,造成zombie, 实验了一下两次fork的做法,还是没用,最后用system替代了fork+execvp, 就正常了,但原因还未仔细查找,不知道是否因为/etc/profile中启动属于init过程,因此有些问题</p>
+<p>经过试用uclibc总结如下:</p>
+<p>1.速度</p>
+<p>启动速度:</p>
+<p>无改善,因为只有busybox和uclibc相关,是静态编译,速度变化不大</p>
+<p>AP响应速度;</p>
+<p>AP都是QTE程序,基本没影响</p>
+<p>视频解码速度:</p>
+<p>虽然视频解码是c代码,但是使用c函数,基本就memcpy/memset等,以及str操作相关的,因此相比glibc稍微一点点快,可能是在加载库和映射地址时节省一点时间</p>
+<p>2.尺寸:</p>
+<p>C库由1.x M变成 几百k</p>
+<p>一些中间库小了30%~40%(大部分是c语言的) ,  QTE库基本无变化,  QTE的AP基本只少几k或者10K</p>
+<p>总共接近30M,可以少2~3M</p>
+<p>3.成熟度</p>
+<p>NPTL至今还是branch,没有release, linuxthreads还有BUG,只能用linuxthreads_old</p>
+<p>此外一些接口也没有,另外带<strong>的接口没有,例如</strong>getpid等. 其他接口没有用LTP回归测试.</p>
+<p>总结:<br>在速度没有明显变化的前提下,使用uClibc可以减少一些固件大小, 减少内存消耗(-1M左右), 但是由于接口的兼容性和稳定性和glibc还有差距,因此暂不替换当前使用</p>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/linux/">linux</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/uclibc/">uclibc</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

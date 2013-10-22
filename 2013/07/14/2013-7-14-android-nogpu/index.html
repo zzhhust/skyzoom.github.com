@@ -1,0 +1,262 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android on noGPU porting | 四棵竹</title>
+  <meta name="author" content="skyzoom">
+  
+  <meta name="description" content="Android on noGPU porting
+ 1)egl.cfg
+ 0 0 android
+ 2) remove gpu special gralloc.so and other .so
+ 3)frameworks/base/packages/SettingsProvider/res/valu">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Android on noGPU porting"/>
+  <meta property="og:site_name" content="四棵竹"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="四棵竹" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">四棵竹</a></h1>
+  <h2><a href="/">keep studying and recording</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+      <li><a href="/about">关于</a></li>
+    
+      <li><a href="/todolist">ToDo</a></li>
+    
+<li> <a href="/atom.xml">RSS</a> </li>     
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2013-07-14T13:00:00.000Z"><a href="/2013/07/14/2013-7-14-android-nogpu/">7月 14 2013</a></time>
+      
+      
+  
+    <h1 class="title">Android on noGPU porting</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <ol>
+<li><p>Android on noGPU porting</p>
+<pre><code> <span class="number">1</span>)egl<span class="preprocessor">.cfg</span>
+ <span class="number">0</span> <span class="number">0</span> android
+ <span class="number">2</span>) remove gpu special gralloc<span class="preprocessor">.so</span> <span class="keyword">and</span> other <span class="preprocessor">.so</span>
+ <span class="number">3</span>)frameworks/base/packages/SettingsProvider/res/values/defaults<span class="preprocessor">.xml</span>
+ - &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">15000</span>&lt;/integer&gt;
+ + &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">600000</span>&lt;/integer&gt;
+ <span class="number">4</span>)frameworks/base/core/java/android/content/pm/PackageParser<span class="preprocessor">.java</span>
+ - boolean hardwareAccelerated = sa<span class="preprocessor">.getBoolean</span>(
+ + boolean hardwareAccelerated = false<span class="comment">;/*sa.getBoolean(</span>
+ <span class="keyword">com</span><span class="preprocessor">.android</span><span class="preprocessor">.internal</span><span class="preprocessor">.R</span><span class="preprocessor">.styleable</span><span class="preprocessor">.AndroidManifestApplication</span>_hardwareAccelerated,
+ - owner<span class="preprocessor">.applicationInfo</span><span class="preprocessor">.targetSdkVersion</span> &gt;= Build<span class="preprocessor">.VERSION</span>_CODES<span class="preprocessor">.ICE</span>_CREAM_SANDWICH)<span class="comment">;</span>
+ + owner<span class="preprocessor">.applicationInfo</span><span class="preprocessor">.targetSdkVersion</span> &gt;= Build<span class="preprocessor">.VERSION</span>_CODES<span class="preprocessor">.ICE</span>_CREAM_SANDWICH)<span class="comment">;*/</span>
+ <span class="number">5</span>)frameworks/base/core/java/android/view/ViewRootImpl<span class="preprocessor">.java</span>
+ - boolean hardwareAccelerated =
+ - (attrs<span class="preprocessor">.flags</span> &amp; WindowManager<span class="preprocessor">.LayoutParams</span><span class="preprocessor">.FLAG</span>_HARDWARE_ACCELERATED) != <span class="number">0</span><span class="comment">;</span>
+ + boolean hardwareAccelerated =false<span class="comment">;</span>
+ + //
+ <span class="number">6</span>)frameworks/base/core/java/android/view/Window<span class="preprocessor">.java</span>
+ - mHardwareAccelerated = hardwareAccelerated
+ - || SystemProperties<span class="preprocessor">.getBoolean</span>(PROPERTY_HARDWARE_UI, false)<span class="comment">;</span>
+ + mHardwareAccelerated = <span class="comment">/*hardwareAccelerated
+ + || SystemProperties.getBoolean(PROPERTY_HARDWARE_UI, false);*/</span>false<span class="comment">;</span>
+ <span class="number">7</span>)frameworks/base/packages/SettingsProvider/res/values/defaults<span class="preprocessor">.xml</span>
+ - &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">60000</span>&lt;/integer&gt;
+ + &lt;integer name=”def_screen_off_timeout”&gt;<span class="number">600000</span>&lt;/integer&gt;
+ <span class="number">8</span>)frameworks/base/packages/SystemUI/src/<span class="keyword">com</span>/android/systemui/ImageWallpaper<span class="preprocessor">.java</span>
+ if (!isEmulator()) {
+ - mIsHwAccelerated = ActivityManager<span class="preprocessor">.isHighEndGfx</span>()<span class="comment">;</span>
+ + mIsHwAccelerated = false<span class="comment">;//ActivityManager.isHighEndGfx();</span>
+ <span class="number">9</span>)policy/src/<span class="keyword">com</span>/android/internal/policy/impl/keyguard/KeyguardViewMediator<span class="preprocessor">.java</span>
+ - private boolean mExternallyEnabled = true<span class="comment">;</span>
+ + private boolean mExternallyEnabled = false<span class="comment">;</span>
+ <span class="number">10</span>)services/java/<span class="keyword">com</span>/android/server/DynamicPManagerService<span class="preprocessor">.java</span>
+ mask some special operation to cpufreq sysfs interface
+ <span class="number">11</span>)services/java/<span class="keyword">com</span>/android/server/power/PowerManagerService<span class="preprocessor">.java</span>
+ @@ -<span class="number">1589</span>,<span class="number">8</span> +<span class="number">1589</span>,<span class="number">10</span> @@ public final class PowerManagerService extends IPowerManager<span class="preprocessor">.Stub</span>
+ if (shouldNapAtBedTimeLocked()) {
+ changed = napNoUpdateLocked(time)<span class="comment">;</span>
+ } else {
+ - changed = goToSleepNoUpdateLocked(time,
+ - PowerManager<span class="preprocessor">.GO</span>_TO_SLEEP_REASON_TIMEOUT)<span class="comment">;</span>
+ + Slog<span class="preprocessor">.i</span>(TAG, “updateWakefulnessLocked”)<span class="comment">;</span>
+ + changed = false<span class="comment">;</span>
+ + //goToSleepNoUpdateLocked(time,
+ + // PowerManager<span class="preprocessor">.GO</span>_TO_SLEEP_REASON_TIMEOUT)<span class="comment">;</span>
+ <span class="number">12</span>)libs/gui/Android<span class="preprocessor">.mk</span>
+ + LOCAL_CFLAGS += -DUSE_FENCE_SYNC
+ <span class="number">13</span>)system/core/init/property_service<span class="preprocessor">.c</span>
+ { “selinux.” , AID_SYSTEM, <span class="number">0</span> },
+ + { “service<span class="preprocessor">.bootanim</span><span class="preprocessor">.exit</span>”, AID_GRAPHICS, <span class="number">0</span> },
+ { NULL, <span class="number">0</span>, <span class="number">0</span> }
+ <span class="number">2.</span> start logcat method
+ <span class="number">1</span>) init<span class="preprocessor">.rc</span>
+ +service logcat /system/bin/logcat -f /dev/kmsg
+ + user root
+ + group root
+ + disabled
+ + oneshot
+ on property:ro<span class="preprocessor">.debuggable</span>=<span class="number">1</span>
+ start console
+ + start logcat
+ <span class="number">2</span>)logcat/logcat<span class="preprocessor">.cpp</span>
+ -<span class="preprocessor">#define ENABLE_KERNEL_LOG 1</span>
+ +//<span class="preprocessor">#define ENABLE_KERNEL_LOG 1</span></code></pre>
+</li>
+</ol>
+<hr>
+
+      
+    </div>
+    <footer>
+      
+        
+  
+  <div class="categories">
+    <a href="/categories/android/">android</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/gpu/">gpu</a>, <a href="/tags/android/">android</a>
+  </div>
+
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_32x32">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1375404408879501" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<section id="comment">
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"skyzoom"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END -->
+</section>
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/android/">android</a><small>3</small></li>
+  
+    <li><a href="/categories/bash/">bash</a><small>1</small></li>
+  
+    <li><a href="/categories/buglist/">buglist</a><small>2</small></li>
+  
+    <li><a href="/categories/linux/">linux</a><small>3</small></li>
+  
+    <li><a href="/categories/mips/">mips</a><small>6</small></li>
+  
+    <li><a href="/categories/tools/">tools</a><small>5</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/adb/" style="font-size: 10.00px;">adb</a><a href="/tags/android/" style="font-size: 20.00px;">android</a><a href="/tags/bash/" style="font-size: 13.33px;">bash</a><a href="/tags/boot/" style="font-size: 10.00px;">boot</a><a href="/tags/buildroot/" style="font-size: 10.00px;">buildroot</a><a href="/tags/cache/" style="font-size: 10.00px;">cache</a><a href="/tags/cpu/" style="font-size: 10.00px;">cpu</a><a href="/tags/cygwin/" style="font-size: 10.00px;">cygwin</a><a href="/tags/fork/" style="font-size: 10.00px;">fork</a><a href="/tags/gpu/" style="font-size: 10.00px;">gpu</a><a href="/tags/kernel/" style="font-size: 10.00px;">kernel</a><a href="/tags/linux/" style="font-size: 10.00px;">linux</a><a href="/tags/lockup/" style="font-size: 10.00px;">lockup</a><a href="/tags/mips/" style="font-size: 16.67px;">mips</a><a href="/tags/oprofie/" style="font-size: 10.00px;">oprofie</a><a href="/tags/repo/" style="font-size: 10.00px;">repo</a><a href="/tags/tlb/" style="font-size: 10.00px;">tlb</a><a href="/tags/tools/" style="font-size: 13.33px;">tools</a><a href="/tags/uboot/" style="font-size: 10.00px;">uboot</a><a href="/tags/uclibc/" style="font-size: 10.00px;">uclibc</a><a href="/tags/vim/" style="font-size: 10.00px;">vim</a>
+  </div>
+</div>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://zipperary.com/" title="Zippera's Blog">Zippera</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2013 skyzoom
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>
